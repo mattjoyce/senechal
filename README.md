@@ -1,0 +1,2 @@
+# senechal
+A personal API
