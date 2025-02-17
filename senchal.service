@@ -1,0 +1,13 @@
+[Unit]
+Description=Senechal API (FastAPI)
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/api/senechal
+ExecStart=/home/ubuntu/api/senechal/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
