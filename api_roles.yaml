@@ -1,0 +1,9 @@
+roles:
+  read:
+    access:
+      - "/getTest"
+
+  write:
+    access:
+      - "/getTest"
+      - "/setTest"
