@@ -2,7 +2,9 @@ roles:
   read:
     access:
       - "/getTest"
-
+      - "/health/current"
+      - "/health/trends"
+      - "/health/stats"
   write:
     access:
       - "/getTest"

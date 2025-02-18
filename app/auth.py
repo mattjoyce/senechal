@@ -1,15 +1,17 @@
+# app/auth.py
 import yaml
 from fastapi import HTTPException, Security, Depends
 from fastapi.security import APIKeyHeader
 from typing import Dict
+from .config import API_KEYS_PATH, API_ROLES_PATH
 
 # Load YAML files
 def load_yaml(filename: str) -> Dict:
     with open(filename, "r") as file:
         return yaml.safe_load(file)
 
-API_KEYS = load_yaml("api_keys.yaml")["api_keys"]
-ROLES = load_yaml("api_roles.yaml")["roles"]
+API_KEYS = load_yaml(API_KEYS_PATH)["api_keys"]
+ROLES = load_yaml(API_ROLES_PATH)["roles"]
 
 # API Key Security
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
