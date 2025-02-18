@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends
-from auth import check_access, get_api_key
+from .auth import check_access, get_api_key
 from pydantic import BaseModel
 from logging import getLogger
 
