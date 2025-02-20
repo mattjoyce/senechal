@@ -76,4 +76,4 @@ SELECT
     vm.*
 FROM v_measurements vm
 JOIN latest_dates ld ON vm.type = ld.type AND vm.date = ld.max_date
-/* v_latest_measurements(id,withings_id,date,type,value,measure_name,display_unit,created_at)  */;
+/* v_latest_measurements(id,withings_id,date,type,value,measure_name,display_unit,created_at) */;

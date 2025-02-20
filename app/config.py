@@ -15,3 +15,5 @@ WITHINGS_DB_PATH = os.getenv("WITHINGS_DB_PATH", "/home/ubuntu/api/withings/with
 # API Configuration paths - relative to project root
 API_KEYS_PATH = os.getenv("API_KEYS_PATH", PROJECT_ROOT / "config" / "api_keys.yaml")
 API_ROLES_PATH = os.getenv("API_ROLES_PATH", PROJECT_ROOT / "config" / "api_roles.yaml")
+
+HEALTH_PROFILE_PATH = os.getenv("HEALTH_PROFILE_PATH", "/path/to/default/health_profile.json")

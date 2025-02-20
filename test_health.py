@@ -1,30 +1,40 @@
 # test_health.py
 import sqlite3
+import asyncio
 from datetime import datetime
 from app.config import WITHINGS_DB_PATH
-from app.health.routes import get_current_measurements
+from app.health.routes import get_current_measurements, get_health_trends, get_health_stats
 
 def test_db_connection():
-    """Test basic database connection and view existence"""
+    """Test basic database connection and views"""
     try:
         conn = sqlite3.connect(WITHINGS_DB_PATH)
         cursor = conn.cursor()
         
-        # Test if views exist
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='view'")
-        views = cursor.fetchall()
-        print("Available views:", [view[0] for view in views])
+        # Test both views
+        print("Testing views content:")
         
-        # Test v_latest_measurements content
-        cursor.execute("SELECT * FROM v_latest_measurements LIMIT 1")
-        columns = [description[0] for description in cursor.description]
-        row = cursor.fetchone()
+        # Test base view
+        cursor.execute("""
+            SELECT DISTINCT type, measure_name, display_unit
+            FROM v_measurements 
+            ORDER BY type
+        """)
+        measurement_types = cursor.fetchall()
+        print("\nAvailable measurement types:")
+        for type_id, name, unit in measurement_types:
+            print(f"  Type {type_id}: {name} ({unit})")
         
-        print("\nColumns in v_latest_measurements:", columns)
-        if row:
-            print("Sample row:", dict(zip(columns, row)))
-        else:
-            print("No data in v_latest_measurements")
+        # Test latest measurements view
+        cursor.execute("""
+            SELECT id, date, type, value, measure_name, display_unit 
+            FROM v_latest_measurements 
+            ORDER BY type
+        """)
+        latest_rows = cursor.fetchall()
+        print(f"\nLatest measurements ({len(latest_rows)} types):")
+        for row in latest_rows:
+            print(f"  {row[4]}: {row[3]} {row[5]} ({row[1]})")
             
         conn.close()
         return True
@@ -32,43 +42,105 @@ def test_db_connection():
         print(f"Database connection error: {e}")
         return False
 
-def test_get_current():
-    """Test the get_current_measurements endpoint logic"""
+async def test_current_measurements():
+    """Test the current measurements endpoint"""
     try:
-        # Create a mock request with no type filters
-        result = get_current_measurements(types=None)
+        print("\nTesting /health/current:")
         
-        print("\nEndpoint response:")
-        print(f"Timestamp: {result.timestamp}")
-        print(f"Number of measurements: {len(result.measurements)}")
+        # Test all measurements
+        print("  All measurements:")
+        all_measurements = await get_current_measurements(types=None)
+        print(f"    Found {len(all_measurements.measurements)} measurements")
         
-        if result.measurements:
-            print("\nFirst measurement:")
-            m = result.measurements[0]
-            print(f"  Date: {m.date}")
-            print(f"  Type: {m.type}")
-            print(f"  Name: {m.measure_name}")
-            print(f"  Value: {m.value} {m.display_unit}")
-            
+        # Test specific types (weight and blood pressure)
+        print("\n  Weight and BP measurements:")
+        weight_bp = await get_current_measurements(types=[1, 9, 10])
+        for m in weight_bp.measurements:
+            print(f"    {m.measure_name}: {m.value} {m.display_unit}")
+        
         return True
     except Exception as e:
-        print(f"Endpoint error: {e}")
+        print(f"Current measurements error: {e}")
         return False
 
-if __name__ == "__main__":
+async def test_trends():
+    """Test the trends endpoint"""
+    try:
+        print("\nTesting /health/trends:")
+        
+        # Test different intervals
+        for interval in ["day", "week", "month"]:
+            print(f"\n  {interval.capitalize()} trends (last 30 days):")
+            trends = await get_health_trends(days=30, types=[1, 9, 10], interval=interval)
+            
+            if trends.trends:
+                for t in trends.trends:
+                    print(f"    {t.period.date()} - {t.measure_name}: "
+                          f"avg={t.avg_value:.1f} {t.display_unit} "
+                          f"(min={t.min_value:.1f}, max={t.max_value:.1f})")
+            else:
+                print(f"    No {interval} trends found")
+        
+        return True
+    except Exception as e:
+        print(f"Trends error: {e}")
+        return False
+
+async def test_stats():
+    """Test the stats endpoint"""
+    try:
+        print("\nTesting /health/stats:")
+        
+        # Get stats for last 30 days
+        stats = await get_health_stats(days=30, types=None)
+        
+        print("  30-day statistics:")
+        for stat in stats.stats:
+            stat_line = (f"    {stat.measure_name}: "
+                        f"avg={stat.avg_value:.1f} {stat.display_unit} "
+                        f"(min={stat.min_value:.1f}, max={stat.max_value:.1f})")
+            
+            if stat.classification:
+                stat_line += f" - {stat.classification}"
+            
+            print(stat_line)
+        
+        return True
+    except Exception as e:
+        print(f"Stats error: {e}")
+        return False
+
+async def run_tests():
     print("Testing Health Routes...")
     print("\n1. Testing Database Connection...")
     if test_db_connection():
         print("✅ Database connection successful")
     else:
         print("❌ Database connection failed")
-        exit(1)
+        return
         
     print("\n2. Testing Current Measurements Endpoint...")
-    if test_get_current():
-        print("✅ Endpoint test successful")
+    if await test_current_measurements():
+        print("✅ Current measurements test successful")
     else:
-        print("❌ Endpoint test failed")
-        exit(1)
+        print("❌ Current measurements test failed")
+        return
+        
+    print("\n3. Testing Trends Endpoint...")
+    if await test_trends():
+        print("✅ Trends test successful")
+    else:
+        print("❌ Trends test failed")
+        return
+        
+    print("\n4. Testing Stats Endpoint...")
+    if await test_stats():
+        print("✅ Stats test successful")
+    else:
+        print("❌ Stats test failed")
+        return
         
     print("\n✅ All tests passed!")
+
+if __name__ == "__main__":
+    asyncio.run(run_tests())
