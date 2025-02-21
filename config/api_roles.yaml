@@ -5,6 +5,7 @@ roles:
       - "/health/current"
       - "/health/trends"
       - "/health/stats"
+      - "/health/profile"
   write:
     access:
       - "/getTest"
