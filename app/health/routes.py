@@ -138,7 +138,11 @@ def read_json_file(filepath: str) -> dict:
 def get_db(path:str):
     return sqlite3.connect(path)
 
-@router.get("/health/summary/{period}", response_model=HealthSummaryResponse)
+@router.get("/summary/{period}", 
+            response_model=HealthSummaryResponse,
+            dependencies=[Depends(check_access("/health/summary"))],
+            )
+
 async def get_health_summary(
     period: Literal["day", "week", "month", "year"],
     metrics: str = Query(
@@ -185,20 +189,20 @@ async def get_health_summary(
         # Calculate date range
         query = f"""
             SELECT 
-                period_start,
-                period_end,
-                metric_id,
-                avg_value,
-                min_value,
-                max_value,
-                sample_count,
+                s.period_start,
+                s.period_end,
+                s.metric_id,
+                s.avg_value,
+                s.min_value,
+                s.max_value,
+                s.sample_count,
                 m.unit
             FROM summaries s
             JOIN metrics m ON s.metric_id = m.metric_id
             WHERE period_type = ?
             AND period_start >= date('now', '-' || ? || ' ' || ? || 's')
             {metric_filter}
-            ORDER BY period_start DESC, metric_id
+            ORDER BY period_start DESC, s.metric_id
         """
         
         params = [period, span + offset, period]
@@ -237,7 +241,9 @@ async def get_health_summary(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/profile", dependencies=[Depends(check_access("/health/profile"))])
+@router.get("/profile", 
+            dependencies=[Depends(check_access("/health/profile"))]
+            )
 async def get_health_profile():
     """Get health profile from configured file location"""
     return read_json_file(HEALTH_PROFILE_PATH)

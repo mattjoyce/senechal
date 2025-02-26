@@ -35,6 +35,16 @@ CREATE TABLE sync_status (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+CREATE TABLE IF NOT EXISTS sync_metadata (
+    source TEXT NOT NULL,
+    key TEXT NOT NULL,
+    value TEXT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (source, key)
+);
+
 CREATE VIEW v_latest_summaries AS
 WITH latest_updates AS (
     SELECT 
