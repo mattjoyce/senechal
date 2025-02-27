@@ -20,7 +20,9 @@ WITHINGS_METRIC_MAP = {
     170: 'visceral_fat',
     9: 'bp_diastolic',
     10: 'bp_systolic',
-    11: 'hr'
+    11: 'hr',
+    226: 'basal_metabolic_rate',
+    227: 'skin_conductance'
 }
 
 class WithingsETL(HealthETL):

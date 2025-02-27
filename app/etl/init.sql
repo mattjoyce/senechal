@@ -21,6 +21,8 @@ INSERT OR IGNORE INTO metrics (metric_id, group_id, name, unit, description) VAL
     ('visceral_fat', 'body', 'Visceral Fat', 'index', 'Visceral fat rating'),
     ('bp_systolic', 'body', 'Systolic Blood Pressure', 'mmHg', 'Systolic blood pressure'),
     ('bp_diastolic', 'body', 'Diastolic Blood Pressure', 'mmHg', 'Diastolic blood pressure'),
+    ('basal_metabolic_rate', 'body', 'Basal Metabolic Rate', 'kcal', 'The number of calories your body uses at rest'),
+    ('skin_conductance', 'body', 'Skin Conductance', 'µS', 'Electrical conductance of the skin, related to sweat gland activity'),
 
     -- Heart
     ('hr_avg', 'heart', 'Average Heart Rate', 'bpm', 'Average heart rate'),
