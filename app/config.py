@@ -22,3 +22,6 @@ API_KEYS_PATH = os.getenv("API_KEYS_PATH")
 API_ROLES_PATH = os.getenv("API_ROLES_PATH")
 
 HEALTH_PROFILE_PATH = os.getenv("HEALTH_PROFILE_PATH")
+
+# Logging path - defaults to log directory in project root
+APP_LOGGING_PATH = os.getenv("APP_LOGGING_PATH", PROJECT_ROOT / "log")
