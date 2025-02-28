@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends
 from .auth import check_access, get_api_key
 from .health.routes import router as health_router
+from .mcp.routes import router as mcp_router
 from pydantic import BaseModel
 from logging import getLogger
 
@@ -9,6 +10,9 @@ logger = getLogger(__name__)
 
 # Include the health router
 app.include_router(health_router)
+
+# Include the MCP router
+app.include_router(mcp_router)
 
 # Data model for writing to file
 class TestData(BaseModel):

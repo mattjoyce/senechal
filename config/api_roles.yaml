@@ -6,7 +6,11 @@ roles:
       - "/health/trends"
       - "/health/stats"
       - "/health/profile"
+      - "/mcp/definition"
+      - "/mcp/invoke"
   write:
     access:
       - "/getTest"
       - "/setTest"
+      - "/mcp/definition"
+      - "/mcp/invoke"
