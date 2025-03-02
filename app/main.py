@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends, Request
-from fastapi.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from .auth import check_access, get_api_key
 from .health.routes import router as health_router
 from .logging_config import setup_logging
