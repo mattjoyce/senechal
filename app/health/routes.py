@@ -88,6 +88,43 @@ class MetricValue(BaseModel):
     max: Optional[float]
     unit: str
     sample_count: int
+    
+    @classmethod
+    def create_from_values(cls, avg, min_val, max_val, unit, sample_count):
+        """Handle time string values by converting them to minutes"""
+        if isinstance(avg, str) and ":" in avg:
+            # Convert time format to minutes
+            parts = avg.split(":")
+            if len(parts) >= 2:
+                hours = int(parts[0])
+                minutes = int(parts[1])
+                avg = hours * 60 + minutes
+                
+        if isinstance(min_val, str) and ":" in min_val:
+            parts = min_val.split(":")
+            if len(parts) >= 2:
+                hours = int(parts[0])
+                minutes = int(parts[1])
+                min_val = hours * 60 + minutes
+                
+        if isinstance(max_val, str) and ":" in max_val:
+            parts = max_val.split(":")
+            if len(parts) >= 2:
+                hours = int(parts[0])
+                minutes = int(parts[1])
+                max_val = hours * 60 + minutes
+        
+        # If we've converted time values, update the unit
+        if isinstance(avg, str) and ":" in avg:
+            unit = "minutes"
+                
+        return cls(
+            avg=float(avg) if avg is not None else None,
+            min=float(min_val) if min_val is not None else None,
+            max=float(max_val) if max_val is not None else None,
+            unit=unit,
+            sample_count=sample_count
+        )
 
 class PeriodSummary(BaseModel):
     period_start: datetime
@@ -184,7 +221,7 @@ async def get_health_summary(
             
             if not metric_ids:
                 raise HTTPException(status_code=400, detail="No valid metrics specified")
-            metric_filter = f"AND metric_id IN ({','.join('?' for _ in metric_ids)})"
+            metric_filter = f"AND s.metric_id IN ({','.join('?' for _ in metric_ids)})"
         
         # Calculate date range
         query = f"""
@@ -199,10 +236,10 @@ async def get_health_summary(
                 m.unit
             FROM summaries s
             JOIN metrics m ON s.metric_id = m.metric_id
-            WHERE period_type = ?
-            AND period_start >= date('now', '-' || ? || ' ' || ? || 's')
+            WHERE s.period_type = ?
+            AND s.period_start >= date('now', '-' || ? || ' ' || ? || 's')
             {metric_filter}
-            ORDER BY period_start DESC, s.metric_id
+            ORDER BY s.period_start DESC, s.metric_id
         """
         
         params = [period, span + offset, period]
@@ -222,13 +259,14 @@ async def get_health_summary(
                     "metrics": {}
                 }
             
-            summaries[period_start]["metrics"][row[2]] = {
-                "avg": row[3],
-                "min": row[4],
-                "max": row[5],
-                "sample_count": row[6],
-                "unit": row[7]
-            }
+            # Use our helper method to handle time string values
+            summaries[period_start]["metrics"][row[2]] = MetricValue.create_from_values(
+                avg=row[3],
+                min_val=row[4],
+                max_val=row[5],
+                sample_count=row[6],
+                unit=row[7]
+            )
         
         db.close()
         
