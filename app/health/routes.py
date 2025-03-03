@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel
 
 from ..auth import check_access, get_api_key
@@ -142,6 +143,33 @@ class HealthSummaryResponse(BaseModel):
 
 router = APIRouter(prefix="/health", tags=["health"])
 
+def read_markdown_file(filepath: str) -> str:
+    """
+    Read a Markdown file from the given filepath
+    
+    Args:
+        filepath: Path to the Markdown file
+        
+    Returns:
+        str: Content of the Markdown file
+        
+    Raises:
+        HTTPException: If file not found
+    """
+    try:
+        with open(filepath, "r") as f:
+            return f.read()
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Profile data not found. Check HEALTH_PROFILE_PATH configuration.",
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error reading profile data: {str(e)}"
+        )
+
+
 
 def read_json_file(filepath: str) -> dict:
     """
@@ -278,14 +306,13 @@ async def get_health_summary(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/profile", 
-            dependencies=[Depends(check_access("/health/profile"))]
+            dependencies=[Depends(check_access("/health/profile"))],
+            response_class=PlainTextResponse,
             )
 async def get_health_profile():
     """Get health profile from configured file location"""
-    return read_json_file(HEALTH_PROFILE_PATH)
-
+    return read_markdown_file(HEALTH_PROFILE_PATH)
 
 @router.get(
     "/current",
