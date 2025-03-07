@@ -215,31 +215,30 @@ def get_db(path:str):
     return sqlite3.connect(path)
 
 
-@router.get("/availablemetrics", 
-            response_model=List[Metric],
+@router.get("/availablemetrics",
+            response_class=PlainTextResponse,
             dependencies=[Depends(check_access("/health/availablemetrics"))],
             )
 async def get_available_metrics():
     try:
         db = get_db(SENECHAL_DB_PATH)
         cursor = db.cursor()
-        cursor.execute("""
-            SELECT m.metric_id, m.name, m.unit,m.description, g.name AS group_name FROM metrics AS m
-            JOIN metric_groups AS g WHERE g.group_id = m.group_id
-            ORDER by m.group_id, m.metric_id
+        cursor.execute("""SELECT
+            'GROUP: ' || '@' || g.name || ' [' || g.group_id || ']' || char(10) ||
+            group_concat('- ' || m.name || ' (' || m.unit || ', ' || m.metric_id || ')', char(10)) AS compact_output
+            FROM metric_groups AS g
+            LEFT JOIN metrics AS m ON g.group_id = m.group_id
+            GROUP BY g.group_id, g.name
+            ORDER BY g.name;
         """)
-        # Process and return the results as an array of metrics.
-        metrics = []
-        for row in cursor:
-            metrics.append(Metric(
-                metric_id=row[0],
-                metric_name=row[1],
-                unit=row[2],
-                description=row[3],
-                group_name=row[4]
-            ))
+        
+        # Fetch results before closing the database
+        results = cursor.fetchall()
         db.close()
-        return metrics
+        
+        # Join the results into a single string
+        output_string = "\n\n".join(row[0] for row in results)
+        return output_string
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
