@@ -76,6 +76,17 @@ class StatsResponse(BaseModel):
     class Config:
         schema_extra = {"description": "All timestamps are in UTC"}
 
+class Metric(BaseModel):
+    metric_id: str
+    metric_name: str
+    unit: str
+    description: str
+    group_name: str
+
+class AvailableMetricsResponse(BaseModel):
+    metrics: List[Metric]
+    timestamp: datetime = datetime.utcnow()
+    timezone: str = "UTC"
 
 ## v1 models end
 
@@ -202,6 +213,36 @@ def read_json_file(filepath: str) -> dict:
 
 def get_db(path:str):
     return sqlite3.connect(path)
+
+
+@router.get("/availablemetrics", 
+            response_model=List[Metric],
+            dependencies=[Depends(check_access("/health/availablemetrics"))],
+            )
+async def get_available_metrics():
+    try:
+        db = get_db(SENECHAL_DB_PATH)
+        cursor = db.cursor()
+        cursor.execute("""
+            SELECT m.metric_id, m.name, m.unit,m.description, g.name AS group_name FROM metrics AS m
+            JOIN metric_groups AS g WHERE g.group_id = m.group_id
+            ORDER by m.group_id, m.metric_id
+        """)
+        # Process and return the results as an array of metrics.
+        metrics = []
+        for row in cursor:
+            metrics.append(Metric(
+                metric_id=row[0],
+                metric_name=row[1],
+                unit=row[2],
+                description=row[3],
+                group_name=row[4]
+            ))
+        db.close()
+        return metrics
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/summary/{period}", 
             response_model=HealthSummaryResponse,
