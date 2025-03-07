@@ -244,16 +244,19 @@ async def get_available_metrics():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+import logging
+# Get logger
+logger = logging.getLogger('api')
+
 @router.get("/summary/{period}", 
             response_model=HealthSummaryResponse,
             dependencies=[Depends(check_access("/health/summary"))],
             )
-
 async def get_health_summary(
     period: Literal["day", "week", "month", "year"],
     metrics: str = Query(
         default="all",
-        description="Comma-separated metrics/groups or 'all'"
+        description="Comma-separated metrics/groups or 'all'. Use '@' prefix for metric groups."
     ),
     span: int = Query(
         default=1,
@@ -268,29 +271,60 @@ async def get_health_summary(
     )
 ):
     try:
+        logger.info(f"get_health_summary called with period={period}, metrics={metrics}, span={span}, offset={offset}")
         # Connect to DB
+        logger.debug(f"Connecting to DB: {SENECHAL_DB_PATH}")
         db = get_db(SENECHAL_DB_PATH)
         cursor = db.cursor()
         
         # Build metric filter
         if metrics.lower() == "all":
+            logger.debug("Using all metrics")
             metric_filter = ""
+            metric_params = []
         else:
             # Handle both metric IDs and group IDs
             metric_parts = metrics.split(',')
-            # Check if each part is a metric ID or group ID
+            logger.debug(f"Processing metric parts: {metric_parts}")
+            
+            # Process metric parts to handle groups (prefixed with @)
             metric_ids = []
             for part in metric_parts:
-                cursor.execute("""
-                    SELECT metric_id FROM metrics WHERE metric_id = ?
-                    UNION
-                    SELECT metric_id FROM metrics WHERE group_id = ?
-                """, (part, part))
-                metric_ids.extend(row[0] for row in cursor.fetchall())
+                part = part.strip()
+                
+                if part.startswith('@'):
+                    # This is a group identifier
+                    group_id = part[1:]  # Remove the @ prefix
+                    logger.debug(f"Processing group: {group_id}")
+                    cursor.execute("""
+                        SELECT metric_id FROM metrics WHERE group_id = ?
+                    """, (group_id,))
+                    group_metrics = [row[0] for row in cursor.fetchall()]
+                    logger.debug(f"Found {len(group_metrics)} metrics in group {group_id}: {group_metrics}")
+                    metric_ids.extend(group_metrics)
+                else:
+                    # This is an individual metric
+                    logger.debug(f"Processing individual metric: {part}")
+                    cursor.execute("""
+                        SELECT metric_id FROM metrics WHERE metric_id = ?
+                    """, (part,))
+                    result = cursor.fetchone()
+                    if result:
+                        logger.debug(f"Found metric: {result[0]}")
+                        metric_ids.append(result[0])
+                    else:
+                        logger.warning(f"Metric not found: {part}")
             
             if not metric_ids:
+                logger.warning("No valid metrics specified")
                 raise HTTPException(status_code=400, detail="No valid metrics specified")
-            metric_filter = f"AND s.metric_id IN ({','.join('?' for _ in metric_ids)})"
+            
+            # Build the SQL filter
+            placeholders = ','.join('?' for _ in metric_ids)
+            metric_filter = f"AND s.metric_id IN ({placeholders})"
+            metric_params = metric_ids
+            logger.debug(f"SQL filter: {metric_filter}")
+            logger.debug(f"Metric params: {metric_params}")
         
         # Calculate date range
         query = f"""
@@ -313,13 +347,17 @@ async def get_health_summary(
         
         params = [period, span + offset, period]
         if metric_filter:
-            params.extend(metric_ids)
-            
+            params.extend(metric_params)
+        
+        logger.debug(f"Executing query: {query}")
+        logger.debug(f"Query params: {params}")
         cursor.execute(query, params)
         
         # Process results
         summaries = {}
+        row_count = 0
         for row in cursor:
+            row_count += 1
             period_start = datetime.fromisoformat(row[0])
             if period_start not in summaries:
                 summaries[period_start] = {
@@ -337,14 +375,18 @@ async def get_health_summary(
                 unit=row[7]
             )
         
+        logger.debug(f"Found {row_count} rows, {len(summaries)} periods")
         db.close()
         
-        return HealthSummaryResponse(
+        response = HealthSummaryResponse(
             period_type=period,
             summaries=list(summaries.values())
         )
+        logger.info(f"Returning response with {len(response.summaries)} summaries")
+        return response
         
     except Exception as e:
+        logger.error(f"Error in get_health_summary: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/profile", 
@@ -359,11 +401,17 @@ async def get_health_profile():
     "/current",
     response_model=HealthResponse,
     dependencies=[Depends(check_access("/health/current"))],
+    deprecated=True,
 )
 async def get_current_measurements(
     types: Optional[List[int]] = Query(None, description="Filter by measurement types")
 ):
-    """Get latest measurements for all health metrics"""
+    """
+    DEPRECATED: This endpoint will be removed in a future version. 
+    Use '/health/summary/day' with span=1 instead.
+    
+    Get latest measurements for all health metrics
+    """
     db = get_db(WITHINGS_DB_PATH)
     cursor = db.cursor()
 
@@ -399,13 +447,19 @@ async def get_current_measurements(
     "/trends",
     response_model=TrendResponse,
     dependencies=[Depends(check_access("/health/trends"))],
+    deprecated=True,
 )
 async def get_health_trends(
     days: int = Query(30, description="Number of days to analyze"),
     types: Optional[List[int]] = Query(None, description="Filter by measurement types"),
     interval: str = Query("day", description="Grouping interval: day, week, month"),
 ):
-    """Get trend data for specified period and metrics"""
+    """
+    DEPRECATED: This endpoint will be removed in a future version.
+    Use '/health/summary/{period}' with appropriate period and span parameters instead.
+    
+    Get trend data for specified period and metrics
+    """
     db = get_db(WITHINGS_DB_PATH)
     cursor = db.cursor()
 
@@ -453,6 +507,7 @@ async def get_health_trends(
     "/stats",
     response_model=StatsResponse,
     dependencies=[Depends(check_access("/health/stats"))],
+    deprecated=True,
 )
 async def get_health_stats(
     days: Optional[int] = Query(30, description="Analysis period in days"),
@@ -460,7 +515,12 @@ async def get_health_stats(
         default=None, description="Filter by measurement types"
     ),
 ):
-    """Get statistical analysis of health metrics"""
+    """
+    DEPRECATED: This endpoint will be removed in a future version.
+    Use '/health/summary/{period}' with appropriate metrics parameters instead.
+    
+    Get statistical analysis of health metrics
+    """
     db = get_db(WITHINGS_DB_PATH)
     cursor = db.cursor()
 

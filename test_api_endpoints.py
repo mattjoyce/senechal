@@ -135,6 +135,12 @@ def run_all_tests() -> None:
         
         # Test with span and offset
         test_endpoint("get", f"/health/summary/{period}", params={"span": 2, "offset": 1})
+        
+        # Test with metric group using @ prefix
+        test_endpoint("get", f"/health/summary/{period}", params={"metrics": "@activity"})
+        
+        # Test with mixed individual metrics and groups
+        test_endpoint("get", f"/health/summary/{period}", params={"metrics": "weight,@activity,@body"})
     
     # Test GET /health/profile
     print("\n----- Testing /health/profile endpoint -----")

@@ -2,8 +2,8 @@
 import sqlite3
 import asyncio
 from datetime import datetime
-from app.config import WITHINGS_DB_PATH
-from app.health.routes import get_current_measurements, get_health_trends, get_health_stats
+from app.config import WITHINGS_DB_PATH, SENECHAL_DB_PATH
+from app.health.routes import get_current_measurements, get_health_trends, get_health_stats, get_health_summary
 
 def test_db_connection():
     """Test basic database connection and views"""
@@ -110,6 +110,43 @@ async def test_stats():
         print(f"Stats error: {e}")
         return False
 
+async def test_enhanced_summary():
+    """Test the enhanced summary endpoint with metric group support"""
+    try:
+        print("\nTesting Enhanced /health/summary:")
+        
+        print("  Testing with all metrics:")
+        try:
+            print("    About to call get_health_summary...")
+            all_metrics = await get_health_summary(period="day", metrics="all", span=7)
+            print(f"    Retrieved {len(all_metrics.summaries)} summary periods")
+            if all_metrics.summaries:
+                first_summary = all_metrics.summaries[0]
+                print(f"    First period: {first_summary.period_start.date()} to {first_summary.period_end.date()}")
+                print(f"    Number of metrics: {len(first_summary.metrics)}")
+        except Exception as e:
+            print(f"    Error testing with all metrics: {e}")
+        
+        # Try a simpler test
+        print("\n  Testing with a single metric:")
+        try:
+            simple_test = await get_health_summary(period="day", metrics="weight", span=1)
+            print(f"    Test completed: {simple_test is not None}")
+        except Exception as e:
+            print(f"    Error with simple test: {e}")
+        
+        print("\n  Testing with a group:")
+        try:
+            group_test = await get_health_summary(period="day", metrics="@activity", span=1)
+            print(f"    Test completed: {group_test is not None}")
+        except Exception as e:
+            print(f"    Error with group test: {e}")
+            
+        return True
+    except Exception as e:
+        print(f"Enhanced summary error: {e}")
+        return False
+
 async def run_tests():
     print("Testing Health Routes...")
     print("\n1. Testing Database Connection...")
@@ -118,22 +155,29 @@ async def run_tests():
     else:
         print("❌ Database connection failed")
         return
+    
+    print("\n2. Testing Enhanced Summary Endpoint...")
+    if await test_enhanced_summary():
+        print("✅ Enhanced summary test successful")
+    else:
+        print("❌ Enhanced summary test failed")
+        return
         
-    print("\n2. Testing Current Measurements Endpoint...")
+    print("\n3. Testing Current Measurements Endpoint (DEPRECATED)...")
     if await test_current_measurements():
         print("✅ Current measurements test successful")
     else:
         print("❌ Current measurements test failed")
         return
         
-    print("\n3. Testing Trends Endpoint...")
+    print("\n4. Testing Trends Endpoint (DEPRECATED)...")
     if await test_trends():
         print("✅ Trends test successful")
     else:
         print("❌ Trends test failed")
         return
         
-    print("\n4. Testing Stats Endpoint...")
+    print("\n5. Testing Stats Endpoint (DEPRECATED)...")
     if await test_stats():
         print("✅ Stats test successful")
     else:
