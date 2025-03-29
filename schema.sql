@@ -95,14 +95,13 @@ CREATE TABLE sync_metadata (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (source, key)
 );
-
--- Add to schema.sql
-CREATE TABLE IF NOT EXISTS rowing_workouts (
+CREATE TABLE rowing_workouts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    date TEXT NOT NULL,
+    date DATE NOT NULL,
     workout_type TEXT NOT NULL,  -- 'distance' or 'interval'
     duration_seconds REAL NOT NULL,
     distance_meters REAL NOT NULL,
     avg_split REAL,  -- Average split in seconds/500m
     created_at TEXT NOT NULL
 );
+CREATE TABLE sqlite_sequence(name,seq);

@@ -286,8 +286,8 @@ async def get_rowing_workouts(
         
         params = [span + offset, period]
         
-        logger.debug(f"Executing query: {query}")
-        logger.debug(f"Query params: {params}")
+        logger.info(f"Executing query: {query}")
+        logger.info(f"Query params: {params}")
         cursor.execute(query, params)
         
         # Process results
