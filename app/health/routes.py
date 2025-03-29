@@ -276,15 +276,24 @@ async def get_rowing_workouts(
         cursor = db.cursor()
         
         # Calculate date range based on period, span, and offset
+        # Convert periods to days for reliable results
+        period_to_days = {
+            "day": 1,
+            "week": 7,
+            "month": 30,
+            "year": 365
+        }
+        days = (span + offset) * period_to_days[period]
+        
         query = """
             SELECT 
                 id, date, workout_type, duration_seconds, distance_meters, avg_split
             FROM rowing_workouts
-            WHERE date >= date('now', '-' || ? || ' ' || ? || 's')
+            WHERE date >= date('now', '-' || ? || ' days')
             ORDER BY date DESC
         """
         
-        params = [span + offset, period]
+        params = [days]
         
         logger.info(f"Executing query: {query}")
         logger.info(f"Query params: {params}")
@@ -501,12 +510,21 @@ async def get_health_summary(
             FROM summaries s
             JOIN metrics m ON s.metric_id = m.metric_id
             WHERE s.period_type = ?
-            AND s.period_start >= date('now', '-' || ? || ' ' || ? || 's')
+            AND s.period_start >= date('now', '-' || ? || ' days')
             {metric_filter}
             ORDER BY s.period_start DESC, s.metric_id
         """
         
-        params = [period, span + offset, period]
+        # Convert periods to days for reliable results
+        period_to_days = {
+            "day": 1,
+            "week": 7,
+            "month": 30,
+            "year": 365
+        }
+        days = (span + offset) * period_to_days[period]
+        
+        params = [period, days]
         if metric_filter:
             params.extend(metric_params)
         
