@@ -1,12 +1,28 @@
 roles:
+  admin:
+    access:
+      - "/getTest"
+      - "/health/trends"
+      - "/health/stats"
+      - "/health/current"
+      - "/health/profile"
+      - "/health/summary"
+      - "/health/availablemetrics"
+      - "/health/rowing/get"
+      - "/setTest"
+      - "/health/rowing/submit"
   read:
     access:
       - "/getTest"
-      - "/health/current"
       - "/health/trends"
       - "/health/stats"
+      - "/health/current"
       - "/health/profile"
+      - "/health/summary"
+      - "/health/availablemetrics"
+      - "/health/rowing/get"
   write:
     access:
-      - "/getTest"
       - "/setTest"
+      - "/health/rowing/submit"
+

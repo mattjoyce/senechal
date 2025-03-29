@@ -7,11 +7,12 @@ from typing import Any, Dict, List, Literal, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel
+from ..llm.llm_services import extract_rowing_data
+import httpx
 
 from ..auth import check_access, get_api_key
 from ..config import HEALTH_PROFILE_PATH, SENECHAL_DB_PATH, WITHINGS_DB_PATH
-
-
+from .models import RowingExtractRequest, RowingData, RowingWorkout, RowingResponse
 
 # v1 models
 class Measurement(BaseModel):
@@ -153,6 +154,167 @@ class HealthSummaryResponse(BaseModel):
 
 
 router = APIRouter(prefix="/health", tags=["health"])
+
+
+@router.post("/rowing/submit", dependencies=[Depends(check_access("/health/rowing/submit"))])
+async def submit_rowing_data(request: RowingExtractRequest):
+    """
+    Extract rowing data from an image and save it to the database.
+    
+    This endpoint:
+    1. Downloads an image from the provided URL
+    2. Uses an LLM to extract structured workout data
+    3. Saves the data to the database
+    
+    Returns:
+        A response containing the status, workout ID, and extracted data
+    """
+    logger.info(f"Processing rowing image: {request.image_url}")
+    
+    # 1. Download the image
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(str(request.image_url), timeout=30)
+            response.raise_for_status()
+            image_data = response.content
+    except Exception as e:
+        logger.error(f"Failed to download image: {str(e)}")
+        return {
+            "status": "error",
+            "message": f"Failed to download image: {str(e)}"
+        }
+    
+    # 2. Process with LLM
+    try:
+        raw_data = await extract_rowing_data(image_data)
+        workout_data = RowingData(**raw_data)
+    except Exception as e:
+        logger.error(f"Error extracting data: {str(e)}")
+        return {
+            "status": "error",
+            "message": f"Error extracting data: {str(e)}",
+            "details": str(e)
+        }
+    
+    # 3. Save to database
+    try:
+        # Get current timestamp for workout if date not provided
+        workout_date = request.workout_date or datetime.utcnow()
+        
+        # Connect to database
+        db = get_db(SENECHAL_DB_PATH)
+        cursor = db.cursor()
+        
+        # Insert rowing workout
+        cursor.execute("""
+            INSERT INTO rowing_workouts (
+                date, workout_type, duration_seconds, distance_meters, avg_split, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            workout_date.isoformat(),
+            workout_data.workout_type,
+            workout_data.duration_seconds,
+            workout_data.distance_meters,
+            workout_data.avg_split,
+            datetime.utcnow().isoformat()
+        ))
+        
+        workout_id = cursor.lastrowid
+        db.commit()
+        db.close()
+        
+        return {
+            "status": "success",
+            "message": "Rowing workout data saved successfully",
+            "workout_id": workout_id,
+            "data": workout_data.dict()
+        }
+    except Exception as e:
+        logger.error(f"Error saving to database: {str(e)}")
+        return {
+            "status": "error",
+            "message": f"Error saving to database: {str(e)}"
+        }
+
+
+@router.get("/rowing/get/{period}", 
+            response_model=RowingResponse,
+            dependencies=[Depends(check_access("/health/rowing/get"))]
+            )
+async def get_rowing_workouts(
+    period: Literal["day", "week", "month", "year"],
+    span: int = Query(
+        default=1,
+        ge=1,
+        le=52,
+        description="Number of periods to return"
+    ),
+    offset: int = Query(
+        default=0,
+        ge=0,
+        description="Number of periods to offset from now"
+    )
+):
+    """
+    Get rowing workout data for a specific time period.
+    
+    Retrieves rowing workouts from the database for the specified period.
+    
+    Args:
+        period: The period type (day, week, month, year)
+        span: Number of periods to return (1-52)
+        offset: Number of periods to offset from now
+        
+    Returns:
+        A list of rowing workouts for the specified period
+    """
+    try:
+        logger.info(f"get_rowing_workouts called with period={period}, span={span}, offset={offset}")
+        
+        # Connect to DB
+        db = get_db(SENECHAL_DB_PATH)
+        cursor = db.cursor()
+        
+        # Calculate date range based on period, span, and offset
+        query = """
+            SELECT 
+                id, date, workout_type, duration_seconds, distance_meters, avg_split
+            FROM rowing_workouts
+            WHERE date >= date('now', '-' || ? || ' ' || ? || 's')
+            ORDER BY date DESC
+        """
+        
+        params = [span + offset, period]
+        
+        logger.debug(f"Executing query: {query}")
+        logger.debug(f"Query params: {params}")
+        cursor.execute(query, params)
+        
+        # Process results
+        workouts = []
+        for row in cursor.fetchall():
+            workout = RowingWorkout(
+                id=row[0],
+                date=datetime.fromisoformat(row[1].replace('Z', '+00:00')),
+                workout_type=row[2],
+                duration_seconds=row[3],
+                distance_meters=row[4],
+                avg_split=row[5]
+            )
+            workouts.append(workout)
+        
+        db.close()
+        
+        response = RowingResponse(
+            workouts=workouts
+        )
+        logger.info(f"Returning response with {len(response.workouts)} rowing workouts")
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error in get_rowing_workouts: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 def read_markdown_file(filepath: str) -> str:
     """
@@ -582,3 +744,5 @@ def classify_bp(value: float, type_: int) -> str:
             return "Stage 1 Hypertension"
         return "Stage 2 Hypertension"
     return "Unknown"
+
+
