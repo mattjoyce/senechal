@@ -2,7 +2,7 @@
 import json
 import sqlite3
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional
+from typing import List, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import PlainTextResponse
@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from app.llm.llm_services import extract_rowing_data
 import httpx
 
-from app.auth import check_access, get_api_key
+from app.auth import check_access
 from app.config import HEALTH_PROFILE_PATH, SENECHAL_DB_PATH, WITHINGS_DB_PATH
 from app.health.models import RowingExtractRequest, RowingData, RowingWorkout, RowingResponse
 
@@ -339,7 +339,7 @@ def read_markdown_file(filepath: str) -> str:
         HTTPException: If file not found
     """
     try:
-        with open(filepath, "r") as f:
+        with open(filepath, "r",encoding='utf-8') as f:
             return f.read()
     except FileNotFoundError:
         raise HTTPException(
@@ -367,7 +367,7 @@ def read_json_file(filepath: str) -> dict:
         HTTPException: If file not found or invalid JSON
     """
     try:
-        with open(filepath, "r") as f:
+        with open(filepath, "r",encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
         raise HTTPException(

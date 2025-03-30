@@ -66,7 +66,7 @@ class TestData(BaseModel):
 @app.get("/getTest", dependencies=[Depends(check_access("/getTest"))])
 async def get_test():
     try:
-        with open("test.txt", "r") as f:
+        with open("test.txt", "r", encoding="utf-8") as f:
             content = f.read()
         return {"file_content": content}
     except FileNotFoundError:
@@ -76,6 +76,6 @@ async def get_test():
 @app.post("/setTest", dependencies=[Depends(check_access("/setTest"))])
 async def set_test(data: TestData, api_key_data: dict = Depends(get_api_key)):
     logger.info(f"API Call: /setTest | API Key: {api_key_data['role']} | Data: {data.content}")
-    with open("test.txt", "w") as f:
+    with open("test.txt", "w", encoding="utf-8") as f:
         f.write(data.content)
     return {"message": "File updated successfully"}

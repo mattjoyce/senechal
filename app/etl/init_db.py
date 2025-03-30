@@ -31,11 +31,11 @@ def init_db():
 
     try:
         # Execute schema.sql
-        with open(os.path.join(script_dir, 'schema.sql'), 'r') as f:
+        with open(os.path.join(script_dir, 'schema.sql'), 'r',encoding='utf-8') as f:
             cursor.executescript(f.read())
             
         # Execute init.sql
-        with open(os.path.join(script_dir, 'init.sql'), 'r') as f:
+        with open(os.path.join(script_dir, 'init.sql'), 'r',encoding='utf-8') as f:
             cursor.executescript(f.read())
 
         conn.commit()

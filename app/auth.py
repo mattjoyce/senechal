@@ -11,7 +11,7 @@ logger = logging.getLogger('auth')
 
 # Load YAML files
 def load_yaml(filename: str) -> Dict:
-    with open(filename, "r") as file:
+    with open(filename, "r", encoding="utf-8") as file:
         return yaml.safe_load(file)
 
 API_KEYS = load_yaml(API_KEYS_PATH)["api_keys"]

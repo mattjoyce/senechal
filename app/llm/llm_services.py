@@ -20,7 +20,7 @@ def load_prompt(prompt_file: str) -> str:
         The prompt text
     """
     prompt_path = Path(__file__).parent / "prompts" / prompt_file
-    with open(prompt_path, "r") as f:
+    with open(prompt_path, "r", encoding="utf-8") as f:
         return f.read()
 
 def extract_json_from_text(text: str) -> dict:
