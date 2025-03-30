@@ -15,7 +15,7 @@ class Measurement(BaseModel):
     display_unit: str
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "description": "Health measurement data point. All timestamps are in UTC"
         }
 
@@ -48,7 +48,7 @@ class HealthResponse(BaseModel):
     timezone: str = "UTC"
 
     class Config:
-        schema_extra = {"description": "All timestamps are in UTC"}
+        json_schema_extra = {"description": "All timestamps are in UTC"}
 
 
 class TrendResponse(BaseModel):
@@ -57,7 +57,7 @@ class TrendResponse(BaseModel):
     timezone: str = "UTC"
 
     class Config:
-        schema_extra = {"description": "All timestamps are in UTC"}
+        json_schema_extra = {"description": "All timestamps are in UTC"}
 
 
 class StatsResponse(BaseModel):
@@ -66,7 +66,7 @@ class StatsResponse(BaseModel):
     timezone: str = "UTC"
 
     class Config:
-        schema_extra = {"description": "All timestamps are in UTC"}
+        json_schema_extra = {"description": "All timestamps are in UTC"}
 
 class Metric(BaseModel):
     metric_id: str
