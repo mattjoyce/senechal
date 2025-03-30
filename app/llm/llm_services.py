@@ -1,9 +1,12 @@
 # app/llm/llm_services.py
 import json
 import logging
-import llm
+import re
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
+
+import llm
+
 from app.health.models import RowingData
 
 # Set up logging
@@ -32,7 +35,7 @@ def extract_json_from_text(text: str) -> dict:
         pass
     
     # Method 2: Look for JSON in markdown code blocks
-    import re
+
     json_pattern = r"```(?:json)?\s*([\s\S]*?)```"
     matches = re.findall(json_pattern, text)
     

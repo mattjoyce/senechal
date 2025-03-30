@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-import sqlite3
 import logging
-from datetime import datetime
+import sqlite3
 from abc import ABC, abstractmethod
+from datetime import datetime
 
 from app.config import SENECHAL_DB_PATH
+
 
 class HealthETL(ABC):
     def __init__(self, source_name: str):

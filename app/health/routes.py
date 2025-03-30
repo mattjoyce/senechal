@@ -1,20 +1,26 @@
 # app/health/routes.py
 import json
+import logging
 import sqlite3
 from datetime import datetime
 from typing import List, Literal, Optional
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import PlainTextResponse
-from app.llm.llm_services import extract_rowing_data
-import httpx
 
 from app.auth import check_access
 from app.config import HEALTH_PROFILE_PATH, SENECHAL_DB_PATH, WITHINGS_DB_PATH
-from app.health.models import (RowingExtractRequest, RowingData, RowingWorkout, RowingResponse, 
-                               Measurement, TrendMeasurement,StatMeasurement,
-                               HealthResponse,TrendResponse,StatsResponse, 
-                               MetricValue, HealthSummaryResponse)
+from app.health.models import (HealthResponse, HealthSummaryResponse,
+                               Measurement, MetricValue, RowingData,
+                               RowingExtractRequest, RowingResponse,
+                               RowingWorkout, StatMeasurement, StatsResponse,
+                               TrendMeasurement, TrendResponse)
+from app.llm.llm_services import extract_rowing_data
+
+# Get logger
+logger = logging.getLogger('api')
+
 
 router = APIRouter(prefix="/health", tags=["health"])
 
@@ -275,11 +281,6 @@ async def get_available_metrics():
         return output_string
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-import logging
-# Get logger
-logger = logging.getLogger('api')
 
 @router.get("/summary/{period}", 
             response_model=HealthSummaryResponse,

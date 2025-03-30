@@ -1,9 +1,11 @@
 # app/auth.py
-import yaml
 import logging
-from fastapi import HTTPException, Security, Depends
-from fastapi.security import APIKeyHeader
 from typing import Dict
+
+import yaml
+from fastapi import Depends, HTTPException, Security
+from fastapi.security import APIKeyHeader
+
 from .config import API_KEYS_PATH, API_ROLES_PATH
 
 # Set up logger for authentication

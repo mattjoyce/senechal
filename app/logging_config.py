@@ -1,7 +1,9 @@
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
+
 from .config import APP_LOGGING_PATH
+
 
 def setup_logging():
     """Configure logging for the application"""

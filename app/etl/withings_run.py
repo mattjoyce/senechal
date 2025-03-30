@@ -6,6 +6,7 @@ from datetime import datetime
 
 from app.etl.withings import WithingsETL
 
+
 def main():
     """Main entry point for the Withings ETL process"""
     parser = argparse.ArgumentParser(description="Run Withings ETL process")

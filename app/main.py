@@ -1,11 +1,13 @@
-from fastapi import FastAPI, Depends, Request
+import logging
+import time
+
+from fastapi import Depends, FastAPI, Request
+from pydantic import BaseModel
 from starlette.middleware.base import BaseHTTPMiddleware
+
 from .auth import check_access, get_api_key
 from .health.routes import router as health_router
 from .logging_config import setup_logging
-from pydantic import BaseModel
-import logging
-import time
 
 # Set up logging
 setup_logging()
