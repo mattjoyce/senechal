@@ -45,10 +45,10 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             
             return response
             
-        except Exception as e:
+        except Exception as exception:
             api_logger.error(
                 f"REQUEST ERROR: {client_ip} - {method} {path} - "
-                f"Error: {str(e)}"
+                f"Error: {str(exception)}"
             )
             raise
 
@@ -68,8 +68,8 @@ class TestData(BaseModel):
 @app.get("/getTest", dependencies=[Depends(check_access("/getTest"))])
 async def get_test():
     try:
-        with open("test.txt", "r", encoding="utf-8") as f:
-            content = f.read()
+        with open("test.txt", "r", encoding="utf-8") as file:
+            content = file.read()
         return {"file_content": content}
     except FileNotFoundError:
         return {"file_content": "File not found"}
@@ -78,6 +78,6 @@ async def get_test():
 @app.post("/setTest", dependencies=[Depends(check_access("/setTest"))])
 async def set_test(data: TestData, api_key_data: dict = Depends(get_api_key)):
     logger.info(f"API Call: /setTest | API Key: {api_key_data['role']} | Data: {data.content}")
-    with open("test.txt", "w", encoding="utf-8") as f:
-        f.write(data.content)
+    with open("test.txt", "w", encoding="utf-8") as file:
+        file.write(data.content)
     return {"message": "File updated successfully"}

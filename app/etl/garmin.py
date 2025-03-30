@@ -161,8 +161,8 @@ class GarminETL(HealthETL):
                     
                     affected_periods.add((period_type, period_start, period_end))
                     
-                except Exception as e:
-                    logging.error(f"Error parsing date {date_str} from {table_name}: {e}")
+                except Exception as exception:
+                    logging.error(f"Error parsing date {date_str} from {table_name}: {exception}")
         
         summary_db.close()
         return affected_periods
@@ -284,8 +284,8 @@ class GarminETL(HealthETL):
                     try:
                         hours, minutes = value.split(':')[:2]
                         value = int(hours) * 60 + int(minutes)
-                    except Exception as e:
-                        logging.error(f"Error converting time value {value}: {e}")
+                    except Exception as exception:
+                        logging.error(f"Error converting time value {value}: {exception}")
                         continue
                 
                 # Add to metrics dict
@@ -312,8 +312,8 @@ class GarminETL(HealthETL):
             
             summary_db.close()
             
-        except Exception as e:
-            logging.error(f"Error getting summary metrics: {e}")
+        except Exception as exception:
+            logging.error(f"Error getting summary metrics: {exception}")
             return {}
             
         return metrics
@@ -370,8 +370,8 @@ class GarminETL(HealthETL):
             garmin_db.close()
             monitoring_db.close()
             
-        except Exception as e:
-            logging.error(f"Error getting heart metrics: {e}")
+        except Exception as error:
+            logging.error(f"Error getting heart metrics: {error}")
             
         return metrics
 
@@ -431,8 +431,8 @@ class GarminETL(HealthETL):
             
             garmin_db.close()
             
-        except Exception as e:
-            logging.error(f"Error getting sleep metrics: {e}")
+        except Exception as error:
+            logging.error(f"Error getting sleep metrics: {error}")
             
         return metrics
 
@@ -485,8 +485,8 @@ class GarminETL(HealthETL):
             
             monitoring_db.close()
             
-        except Exception as e:
-            logging.error(f"Error getting breathing metrics: {e}")
+        except Exception as error:
+            logging.error(f"Error getting breathing metrics: {error}")
             
         return metrics
 
@@ -522,8 +522,8 @@ class GarminETL(HealthETL):
             
             monitoring_db.close()
             
-        except Exception as e:
-            logging.error(f"Error getting activity metrics: {e}")
+        except Exception as error:
+            logging.error(f"Error getting activity metrics: {error}")
             
         return metrics
 

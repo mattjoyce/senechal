@@ -159,16 +159,16 @@ class WithingsETL(HealthETL):
         
         # Extract measurement dates
         measurement_dates = []
-        for m in new_measurements:
+        for measurement in new_measurements:
             try:
-                date_str = m['date']
+                date_str = measurement['date']
                 if isinstance(date_str, str):
                     measurement_dates.append(datetime.fromisoformat(date_str))
                 else:
                     # If date is already a datetime object
                     measurement_dates.append(date_str)
-            except Exception as e:
-                logging.error(f"Error parsing date for measurement {m['withings_id']}: {e}")
+            except Exception as error:
+                logging.error(f"Error parsing date for measurement {measurement['withings_id']}: {error}")
         
         # Identify affected periods
         affected_periods = self.identify_affected_periods(measurement_dates)

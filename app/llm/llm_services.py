@@ -23,8 +23,8 @@ def load_prompt(prompt_file: str) -> str:
         The prompt text
     """
     prompt_path = Path(__file__).parent / "prompts" / prompt_file
-    with open(prompt_path, "r", encoding="utf-8") as f:
-        return f.read()
+    with open(prompt_path, "r", encoding="utf-8") as file:
+        return file.read()
 
 def extract_json_from_text(text: str) -> dict:
     """Extract JSON from text with multiple fallback methods."""
@@ -95,14 +95,14 @@ async def extract_rowing_data(image_data: bytes, model_name: str = "chatgpt-4o")
         
         parsed_data = extract_json_from_text(result_text)
         logger.debug(f"Successfully extracted JSON from text: {parsed_data}")
-    except Exception as e:
-        logger.error(f"Failed to extract JSON from text: {str(e)}")
-        raise ValueError(f"Failed to extract JSON from text: {str(e)}")
+    except Exception as error:
+        logger.error(f"Failed to extract JSON from text: {str(error)}")
+        raise ValueError(f"Failed to extract JSON from text: {str(error)}")
 
     try:
         # After extracting JSON using any method
         validated_data = RowingData.model_validate(parsed_data)
         return validated_data.model_dump()
-    except Exception as e:
-        logger.error(f"Data validation failed: {str(e)}")
-        raise ValueError(f"Extracted data does not match expected schema: {str(e)}")
+    except Exception as error:
+        logger.error(f"Data validation failed: {str(error)}")
+        raise ValueError(f"Extracted data does not match expected schema: {str(error)}")

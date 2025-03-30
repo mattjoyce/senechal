@@ -87,8 +87,8 @@ def main():
         else:
             logging.info(f"[DRY RUN] Would process {len(affected_periods)} periods")
     
-    except Exception as e:
-        logging.error(f"Error in Garmin ETL: {e}", exc_info=args.debug)
+    except Exception as error:
+        logging.error(f"Error in Garmin ETL: {error}", exc_info=args.debug)
         return 1
     
     return 0

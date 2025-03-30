@@ -70,8 +70,8 @@ def run_etl(sources: Optional[list[str]] = None):
                 
             etl.process_pending_updates()
             
-        except Exception as e:
-            logging.error(f"Error processing {source}: {e}")
+        except Exception as error:
+            logging.error(f"Error processing {source}: {error}")
 
 if __name__ == "__main__":
     logging.basicConfig(

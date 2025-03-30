@@ -30,18 +30,18 @@ def init_db():
 
     try:
         # Execute schema.sql
-        with open(os.path.join(script_dir, 'schema.sql'), 'r',encoding='utf-8') as f:
-            cursor.executescript(f.read())
+        with open(os.path.join(script_dir, 'schema.sql'), 'r',encoding='utf-8') as file:
+            cursor.executescript(file.read())
             
         # Execute init.sql
-        with open(os.path.join(script_dir, 'init.sql'), 'r',encoding='utf-8') as f:
-            cursor.executescript(f.read())
+        with open(os.path.join(script_dir, 'init.sql'), 'r',encoding='utf-8') as file:
+            cursor.executescript(file.read())
 
         conn.commit()
         print("✅ Database initialized successfully")
 
-    except Exception as e:
-        print(f"❌ Error initializing database: {e}")
+    except Exception as error:
+        print(f"❌ Error initializing database: {error}")
         raise
     finally:
         conn.close()

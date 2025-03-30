@@ -64,8 +64,8 @@ class HealthETL(ABC):
                 senechal_db.commit()
                 logging.info("✅ Period processed successfully")
                 
-            except Exception as e:
-                logging.error(f"❌ Error processing period: {e}")
+            except Exception as exception:
+                logging.error(f"❌ Error processing period: {exception}")
                 senechal_db.rollback()
                 continue
         

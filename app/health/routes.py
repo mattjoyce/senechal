@@ -46,23 +46,23 @@ async def submit_rowing_data(request: RowingExtractRequest):
             response = await client.get(str(request.image_url), timeout=30)
             response.raise_for_status()
             image_data = response.content
-    except Exception as e:
-        logger.error(f"Failed to download image: {str(e)}")
+    except Exception as error:
+        logger.error(f"Failed to download image: {str(error)}")
         return {
             "status": "error",
-            "message": f"Failed to download image: {str(e)}"
+            "message": f"Failed to download image: {str(error)}"
         }
     
     # 2. Process with LLM
     try:
         raw_data = await extract_rowing_data(image_data)
         workout_data = RowingData(**raw_data)
-    except Exception as e:
-        logger.error(f"Error extracting data: {str(e)}")
+    except Exception as error:
+        logger.error(f"Error extracting data: {str(error)}")
         return {
             "status": "error",
-            "message": f"Error extracting data: {str(e)}",
-            "details": str(e)
+            "message": f"Error extracting data: {str(error)}",
+            "details": str(error)
         }
     
     # 3. Save to database
@@ -98,11 +98,11 @@ async def submit_rowing_data(request: RowingExtractRequest):
             "workout_id": workout_id,
             "data": workout_data.dict()
         }
-    except Exception as e:
-        logger.error(f"Error saving to database: {str(e)}")
+    except Exception as error:
+        logger.error(f"Error saving to database: {str(error)}")
         return {
             "status": "error",
-            "message": f"Error saving to database: {str(e)}"
+            "message": f"Error saving to database: {str(error)}"
         }
 
 
@@ -189,9 +189,9 @@ async def get_rowing_workouts(
         logger.info(f"Returning response with {len(response.workouts)} rowing workouts")
         return response
         
-    except Exception as e:
-        logger.error(f"Error in get_rowing_workouts: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as error:
+        logger.error(f"Error in get_rowing_workouts: {str(error)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(error))
 
 
 def read_markdown_file(filepath: str) -> str:
@@ -208,16 +208,16 @@ def read_markdown_file(filepath: str) -> str:
         HTTPException: If file not found
     """
     try:
-        with open(filepath, "r",encoding='utf-8') as f:
-            return f.read()
+        with open(filepath, "r",encoding='utf-8') as file:
+            return file.read()
     except FileNotFoundError:
         raise HTTPException(
             status_code=404,
             detail=f"Profile data not found. Check HEALTH_PROFILE_PATH configuration.",
         )
-    except Exception as e:
+    except Exception as error:
         raise HTTPException(
-            status_code=500, detail=f"Error reading profile data: {str(e)}"
+            status_code=500, detail=f"Error reading profile data: {str(error)}"
         )
 
 
@@ -236,8 +236,8 @@ def read_json_file(filepath: str) -> dict:
         HTTPException: If file not found or invalid JSON
     """
     try:
-        with open(filepath, "r",encoding='utf-8') as f:
-            return json.load(f)
+        with open(filepath, "r",encoding='utf-8') as file:
+            return json.load(file)
     except FileNotFoundError:
         raise HTTPException(
             status_code=404,
@@ -245,9 +245,9 @@ def read_json_file(filepath: str) -> dict:
         )
     except json.JSONDecodeError:
         raise HTTPException(status_code=500, detail="Invalid JSON in profile data file")
-    except Exception as e:
+    except Exception as error:
         raise HTTPException(
-            status_code=500, detail=f"Error reading profile data: {str(e)}"
+            status_code=500, detail=f"Error reading profile data: {str(error)}"
         )
 
 
@@ -279,8 +279,8 @@ async def get_available_metrics():
         # Join the results into a single string
         output_string = "\n\n".join(row[0] for row in results)
         return output_string
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=str(error))
 
 @router.get("/summary/{period}", 
             response_model=HealthSummaryResponse,
@@ -428,9 +428,9 @@ async def get_health_summary(
         logger.info(f"Returning response with {len(response.summaries)} summaries")
         return response
         
-    except Exception as e:
-        logger.error(f"Error in get_health_summary: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as error:
+        logger.error(f"Error in get_health_summary: {str(error)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(error))
 
 @router.get("/profile", 
             dependencies=[Depends(check_access("/health/profile"))],

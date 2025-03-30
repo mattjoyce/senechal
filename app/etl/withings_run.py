@@ -57,8 +57,8 @@ def main():
             # Process all new measurements
             etl.process_new_measurements(args.dry_run)
     
-    except Exception as e:
-        logging.error(f"Error in Withings ETL: {e}", exc_info=args.debug)
+    except Exception as error:
+        logging.error(f"Error in Withings ETL: {error}", exc_info=args.debug)
         return 1
     
     return 0
