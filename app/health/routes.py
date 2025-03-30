@@ -7,12 +7,12 @@ from typing import Any, Dict, List, Literal, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel
-from ..llm.llm_services import extract_rowing_data
+from app.llm.llm_services import extract_rowing_data
 import httpx
 
-from ..auth import check_access, get_api_key
-from ..config import HEALTH_PROFILE_PATH, SENECHAL_DB_PATH, WITHINGS_DB_PATH
-from .models import RowingExtractRequest, RowingData, RowingWorkout, RowingResponse
+from app.auth import check_access, get_api_key
+from app.config import HEALTH_PROFILE_PATH, SENECHAL_DB_PATH, WITHINGS_DB_PATH
+from app.health.models import RowingExtractRequest, RowingData, RowingWorkout, RowingResponse
 
 # v1 models
 class Measurement(BaseModel):
