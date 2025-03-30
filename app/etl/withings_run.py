@@ -2,7 +2,7 @@
 import argparse
 import logging
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from app.etl.withings import WithingsETL
 

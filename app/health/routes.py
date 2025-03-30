@@ -6,7 +6,6 @@ from typing import List, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import PlainTextResponse
-from pydantic import BaseModel
 from app.llm.llm_services import extract_rowing_data
 import httpx
 
@@ -15,7 +14,7 @@ from app.config import HEALTH_PROFILE_PATH, SENECHAL_DB_PATH, WITHINGS_DB_PATH
 from app.health.models import (RowingExtractRequest, RowingData, RowingWorkout, RowingResponse, 
                                Measurement, TrendMeasurement,StatMeasurement,
                                HealthResponse,TrendResponse,StatsResponse, 
-                               Metric, AvailableMetricsResponse, MetricValue, PeriodSummary, HealthSummaryResponse)
+                               MetricValue, HealthSummaryResponse)
 
 router = APIRouter(prefix="/health", tags=["health"])
 

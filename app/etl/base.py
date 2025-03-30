@@ -2,7 +2,6 @@
 import sqlite3
 import logging
 from datetime import datetime
-from typing import Dict, List
 from abc import ABC, abstractmethod
 
 from app.config import SENECHAL_DB_PATH

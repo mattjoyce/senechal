@@ -2,7 +2,7 @@
 import logging
 import sqlite3
 from datetime import datetime, timedelta
-from typing import Dict, List, Set, Optional, Tuple
+from typing import Dict, List, Set, Tuple
 
 from app.config import WITHINGS_DB_PATH, SENECHAL_DB_PATH
 from app.etl.base import HealthETL

@@ -2,7 +2,6 @@
 import logging
 import sqlite3
 from datetime import datetime, timedelta
-from typing import Dict, List
 
 from app.config import (
     WITHINGS_DB_PATH,

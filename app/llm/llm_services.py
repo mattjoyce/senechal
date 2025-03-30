@@ -3,7 +3,7 @@ import json
 import logging
 import llm
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from app.health.models import RowingData
 
 # Set up logging
