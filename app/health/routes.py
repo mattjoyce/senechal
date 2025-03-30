@@ -1,4 +1,4 @@
-# app/health/routes.py
+"""FastAPI routes for health data."""
 import json
 import logging
 import sqlite3
@@ -11,35 +11,46 @@ from fastapi.responses import PlainTextResponse
 
 from app.auth import check_access
 from app.config import HEALTH_PROFILE_PATH, SENECHAL_DB_PATH, WITHINGS_DB_PATH
-from app.health.models import (HealthResponse, HealthSummaryResponse,
-                               Measurement, MetricValue, RowingData,
-                               RowingExtractRequest, RowingResponse,
-                               RowingWorkout, StatMeasurement, StatsResponse,
-                               TrendMeasurement, TrendResponse)
+from app.health.models import (
+    HealthResponse,
+    HealthSummaryResponse,
+    Measurement,
+    MetricValue,
+    RowingData,
+    RowingExtractRequest,
+    RowingResponse,
+    RowingWorkout,
+    StatMeasurement,
+    StatsResponse,
+    TrendMeasurement,
+    TrendResponse,
+)
 from app.llm.llm_services import extract_rowing_data
 
 # Get logger
-logger = logging.getLogger('api')
+logger = logging.getLogger("api")
 
 
 router = APIRouter(prefix="/health", tags=["health"])
 
 
-@router.post("/rowing/submit", dependencies=[Depends(check_access("/health/rowing/submit"))])
+@router.post(
+    "/rowing/submit", dependencies=[Depends(check_access("/health/rowing/submit"))]
+)
 async def submit_rowing_data(request: RowingExtractRequest):
     """
     Extract rowing data from an image and save it to the database.
-    
+
     This endpoint:
     1. Downloads an image from the provided URL
     2. Uses an LLM to extract structured workout data
     3. Saves the data to the database
-    
+
     Returns:
         A response containing the status, workout ID, and extracted data
     """
     logger.info(f"Processing rowing image: {request.image_url}")
-    
+
     # 1. Download the image
     try:
         async with httpx.AsyncClient() as client:
@@ -48,11 +59,8 @@ async def submit_rowing_data(request: RowingExtractRequest):
             image_data = response.content
     except Exception as error:
         logger.error(f"Failed to download image: {str(error)}")
-        return {
-            "status": "error",
-            "message": f"Failed to download image: {str(error)}"
-        }
-    
+        return {"status": "error", "message": f"Failed to download image: {str(error)}"}
+
     # 2. Process with LLM
     try:
         raw_data = await extract_rowing_data(image_data)
@@ -62,98 +70,91 @@ async def submit_rowing_data(request: RowingExtractRequest):
         return {
             "status": "error",
             "message": f"Error extracting data: {str(error)}",
-            "details": str(error)
+            "details": str(error),
         }
-    
+
     # 3. Save to database
     try:
         # Get current timestamp for workout if date not provided
         workout_date = request.workout_date or datetime.utcnow()
-        
+
         # Connect to database
         db = get_db(SENECHAL_DB_PATH)
         cursor = db.cursor()
-        
+
         # Insert rowing workout
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO rowing_workouts (
                 date, workout_type, duration_seconds, distance_meters, avg_split, created_at
             ) VALUES (?, ?, ?, ?, ?, ?)
-        """, (
-            workout_date.isoformat(),
-            workout_data.workout_type,
-            workout_data.duration_seconds,
-            workout_data.distance_meters,
-            workout_data.avg_split,
-            datetime.utcnow().isoformat()
-        ))
-        
+        """,
+            (
+                workout_date.isoformat(),
+                workout_data.workout_type,
+                workout_data.duration_seconds,
+                workout_data.distance_meters,
+                workout_data.avg_split,
+                datetime.utcnow().isoformat(),
+            ),
+        )
+
         workout_id = cursor.lastrowid
         db.commit()
         db.close()
-        
+
         return {
             "status": "success",
             "message": "Rowing workout data saved successfully",
             "workout_id": workout_id,
-            "data": workout_data.dict()
+            "data": workout_data.dict(),
         }
     except Exception as error:
         logger.error(f"Error saving to database: {str(error)}")
-        return {
-            "status": "error",
-            "message": f"Error saving to database: {str(error)}"
-        }
+        return {"status": "error", "message": f"Error saving to database: {str(error)}"}
 
 
-@router.get("/rowing/get/{period}", 
-            response_model=RowingResponse,
-            dependencies=[Depends(check_access("/health/rowing/get"))]
-            )
+@router.get(
+    "/rowing/get/{period}",
+    response_model=RowingResponse,
+    dependencies=[Depends(check_access("/health/rowing/get"))],
+)
 async def get_rowing_workouts(
     period: Literal["day", "week", "month", "year"],
     span: int = Query(
-        default=1,
-        ge=1,
-        le=52,
-        description="Number of periods to return"
+        default=1, ge=1, le=52, description="Number of periods to return"
     ),
     offset: int = Query(
-        default=0,
-        ge=0,
-        description="Number of periods to offset from now"
-    )
+        default=0, ge=0, description="Number of periods to offset from now"
+    ),
 ):
     """
     Get rowing workout data for a specific time period.
-    
+
     Retrieves rowing workouts from the database for the specified period.
-    
+
     Args:
         period: The period type (day, week, month, year)
         span: Number of periods to return (1-52)
         offset: Number of periods to offset from now
-        
+
     Returns:
         A list of rowing workouts for the specified period
     """
     try:
-        logger.info(f"get_rowing_workouts called with period={period}, span={span}, offset={offset}")
-        
+        logger.info(
+            f"get_rowing_workouts called with period={period}, span={span}, offset={offset}"
+        )
+
         # Connect to DB
         db = get_db(SENECHAL_DB_PATH)
         cursor = db.cursor()
-        
+
         # Calculate date range based on period, span, and offset
         # Convert periods to days for reliable results
-        period_to_days = {
-            "day": 1,
-            "week": 7,
-            "month": 30,
-            "year": 365
-        }
+        period_to_days = {"day": 1, "week": 7, "month": 30, "year": 365}
         days = (span + offset) * period_to_days[period]
-        
+
         query = """
             SELECT 
                 id, date, workout_type, duration_seconds, distance_meters, avg_split
@@ -161,34 +162,32 @@ async def get_rowing_workouts(
             WHERE date >= date('now', '-' || ? || ' days')
             ORDER BY date DESC
         """
-        
+
         params = [days]
-        
+
         logger.info(f"Executing query: {query}")
         logger.info(f"Query params: {params}")
         cursor.execute(query, params)
-        
+
         # Process results
         workouts = []
         for row in cursor.fetchall():
             workout = RowingWorkout(
                 id=row[0],
-                date=datetime.fromisoformat(row[1].replace('Z', '+00:00')),
+                date=datetime.fromisoformat(row[1].replace("Z", "+00:00")),
                 workout_type=row[2],
                 duration_seconds=row[3],
                 distance_meters=row[4],
-                avg_split=row[5]
+                avg_split=row[5],
             )
             workouts.append(workout)
-        
+
         db.close()
-        
-        response = RowingResponse(
-            workouts=workouts
-        )
+
+        response = RowingResponse(workouts=workouts)
         logger.info(f"Returning response with {len(response.workouts)} rowing workouts")
         return response
-        
+
     except Exception as error:
         logger.error(f"Error in get_rowing_workouts: {str(error)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(error))
@@ -197,18 +196,18 @@ async def get_rowing_workouts(
 def read_markdown_file(filepath: str) -> str:
     """
     Read a Markdown file from the given filepath
-    
+
     Args:
         filepath: Path to the Markdown file
-        
+
     Returns:
         str: Content of the Markdown file
-        
+
     Raises:
         HTTPException: If file not found
     """
     try:
-        with open(filepath, "r",encoding='utf-8') as file:
+        with open(filepath, "r", encoding="utf-8") as file:
             return file.read()
     except FileNotFoundError:
         raise HTTPException(
@@ -219,7 +218,6 @@ def read_markdown_file(filepath: str) -> str:
         raise HTTPException(
             status_code=500, detail=f"Error reading profile data: {str(error)}"
         )
-
 
 
 def read_json_file(filepath: str) -> dict:
@@ -236,7 +234,7 @@ def read_json_file(filepath: str) -> dict:
         HTTPException: If file not found or invalid JSON
     """
     try:
-        with open(filepath, "r",encoding='utf-8') as file:
+        with open(filepath, "r", encoding="utf-8") as file:
             return json.load(file)
     except FileNotFoundError:
         raise HTTPException(
@@ -251,66 +249,71 @@ def read_json_file(filepath: str) -> dict:
         )
 
 
-def get_db(path:str):
+def get_db(path: str):
+    """ Get a database connection"""
     return sqlite3.connect(path)
 
 
-@router.get("/availablemetrics",
-            response_class=PlainTextResponse,
-            dependencies=[Depends(check_access("/health/availablemetrics"))],
-            )
+@router.get(
+    "/availablemetrics",
+    response_class=PlainTextResponse,
+    dependencies=[Depends(check_access("/health/availablemetrics"))],
+)
 async def get_available_metrics():
+    """Get a list of available metrics."""
     try:
         db = get_db(SENECHAL_DB_PATH)
         cursor = db.cursor()
-        cursor.execute("""SELECT
+        cursor.execute(
+            """SELECT
             'GROUP: ' || '@' || g.name || ' [' || g.group_id || ']' || char(10) ||
             group_concat('- ' || m.name || ' (' || m.unit || ', ' || m.metric_id || ')', char(10)) AS compact_output
             FROM metric_groups AS g
             LEFT JOIN metrics AS m ON g.group_id = m.group_id
             GROUP BY g.group_id, g.name
             ORDER BY g.name;
-        """)
-        
+        """
+        )
+
         # Fetch results before closing the database
         results = cursor.fetchall()
         db.close()
-        
+
         # Join the results into a single string
         output_string = "\n\n".join(row[0] for row in results)
         return output_string
     except Exception as error:
         raise HTTPException(status_code=500, detail=str(error))
 
-@router.get("/summary/{period}", 
-            response_model=HealthSummaryResponse,
-            dependencies=[Depends(check_access("/health/summary"))],
-            )
+
+@router.get(
+    "/summary/{period}",
+    response_model=HealthSummaryResponse,
+    dependencies=[Depends(check_access("/health/summary"))],
+)
 async def get_health_summary(
     period: Literal["day", "week", "month", "year"],
     metrics: str = Query(
         default="all",
-        description="Comma-separated metrics/groups or 'all'. Use '@' prefix for metric groups."
+        description="Comma-separated metrics/groups or 'all'. Use '@' prefix for metric groups.",
     ),
     span: int = Query(
-        default=1,
-        ge=1,
-        le=52,
-        description="Number of periods to return"
+        default=1, ge=1, le=52, description="Number of periods to return"
     ),
     offset: int = Query(
-        default=0,
-        ge=0,
-        description="Number of periods to offset from now"
-    )
+        default=0, ge=0, description="Number of periods to offset from now"
+    ),
 ):
+    """Get health summary data for a specific period."""
     try:
-        logger.info(f"get_health_summary called with period={period}, metrics={metrics}, span={span}, offset={offset}")
+        logger.info(
+            f"get_health_summary called with period={period}, metrics={metrics}, span={span}, offset={offset}"
+        )
         # Connect to DB
         logger.debug(f"Connecting to DB: {SENECHAL_DB_PATH}")
         db = get_db(SENECHAL_DB_PATH)
         cursor = db.cursor()
-        
+
         # Build metric filter
         if metrics.lower() == "all":
             logger.debug("Using all metrics")
@@ -318,48 +321,58 @@ async def get_health_summary(
             metric_params = []
         else:
             # Handle both metric IDs and group IDs
-            metric_parts = metrics.split(',')
+            metric_parts = metrics.split(",")
             logger.debug(f"Processing metric parts: {metric_parts}")
-            
+
             # Process metric parts to handle groups (prefixed with @)
             metric_ids = []
             for part in metric_parts:
                 part = part.strip()
-                
-                if part.startswith('@'):
+
+                if part.startswith("@"):
                     # This is a group identifier
                     group_id = part[1:]  # Remove the @ prefix
                     logger.debug(f"Processing group: {group_id}")
-                    cursor.execute("""
+                    cursor.execute(
+                        """
                         SELECT metric_id FROM metrics WHERE group_id = ?
-                    """, (group_id,))
+                    """,
+                        (group_id,),
+                    )
                     group_metrics = [row[0] for row in cursor.fetchall()]
-                    logger.debug(f"Found {len(group_metrics)} metrics in group {group_id}: {group_metrics}")
+                    logger.debug(
+                        f"Found {len(group_metrics)} metrics in group {group_id}: {group_metrics}"
+                    )
                     metric_ids.extend(group_metrics)
                 else:
                     # This is an individual metric
                     logger.debug(f"Processing individual metric: {part}")
-                    cursor.execute("""
+                    cursor.execute(
+                        """
                         SELECT metric_id FROM metrics WHERE metric_id = ?
-                    """, (part,))
+                    """,
+                        (part,),
+                    )
                     result = cursor.fetchone()
                     if result:
                         logger.debug(f"Found metric: {result[0]}")
                         metric_ids.append(result[0])
                     else:
                         logger.warning(f"Metric not found: {part}")
-            
+
             if not metric_ids:
                 logger.warning("No valid metrics specified")
-                raise HTTPException(status_code=400, detail="No valid metrics specified")
-            
+                raise HTTPException(
+                    status_code=400, detail="No valid metrics specified"
+                )
+
             # Build the SQL filter
-            placeholders = ','.join('?' for _ in metric_ids)
+            placeholders = ",".join("?" for _ in metric_ids)
             metric_filter = f"AND s.metric_id IN ({placeholders})"
             metric_params = metric_ids
             logger.debug(f"SQL filter: {metric_filter}")
             logger.debug(f"Metric params: {metric_params}")
-        
+
         # Calculate date range
         query = f"""
             SELECT 
@@ -378,24 +391,19 @@ async def get_health_summary(
             {metric_filter}
             ORDER BY s.period_start DESC, s.metric_id
         """
-        
+
         # Convert periods to days for reliable results
-        period_to_days = {
-            "day": 1,
-            "week": 7,
-            "month": 30,
-            "year": 365
-        }
+        period_to_days = {"day": 1, "week": 7, "month": 30, "year": 365}
         days = (span + offset) * period_to_days[period]
-        
+
         params = [period, days]
         if metric_filter:
             params.extend(metric_params)
-        
+
         logger.debug(f"Executing query: {query}")
         logger.debug(f"Query params: {params}")
         cursor.execute(query, params)
-        
+
         # Process results
         summaries = {}
         row_count = 0
@@ -406,39 +414,41 @@ async def get_health_summary(
                 summaries[period_start] = {
                     "period_start": period_start,
                     "period_end": datetime.fromisoformat(row[1]),
-                    "metrics": {}
+                    "metrics": {},
                 }
-            
+
             # Use our helper method to handle time string values
             summaries[period_start]["metrics"][row[2]] = MetricValue.create_from_values(
                 avg=row[3],
                 min_val=row[4],
                 max_val=row[5],
                 sample_count=row[6],
-                unit=row[7]
+                unit=row[7],
             )
-        
+
         logger.debug(f"Found {row_count} rows, {len(summaries)} periods")
         db.close()
-        
+
         response = HealthSummaryResponse(
-            period_type=period,
-            summaries=list(summaries.values())
+            period_type=period, summaries=list(summaries.values())
         )
         logger.info(f"Returning response with {len(response.summaries)} summaries")
         return response
-        
+
     except Exception as error:
         logger.error(f"Error in get_health_summary: {str(error)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(error))
 
-@router.get("/profile", 
-            dependencies=[Depends(check_access("/health/profile"))],
-            response_class=PlainTextResponse,
-            )
+
+@router.get(
+    "/profile",
+    dependencies=[Depends(check_access("/health/profile"))],
+    response_class=PlainTextResponse,
+)
 async def get_health_profile():
     """Get health profile from configured file location"""
     return read_markdown_file(HEALTH_PROFILE_PATH)
+
 
 @router.get(
     "/current",
@@ -450,9 +460,9 @@ async def get_current_measurements(
     types: Optional[List[int]] = Query(None, description="Filter by measurement types")
 ):
     """
-    DEPRECATED: This endpoint will be removed in a future version. 
+    DEPRECATED: This endpoint will be removed in a future version.
     Use '/health/summary/day' with span=1 instead.
-    
+
     Get latest measurements for all health metrics
     """
     db = get_db(WITHINGS_DB_PATH)
@@ -500,7 +510,7 @@ async def get_health_trends(
     """
     DEPRECATED: This endpoint will be removed in a future version.
     Use '/health/summary/{period}' with appropriate period and span parameters instead.
-    
+
     Get trend data for specified period and metrics
     """
     db = get_db(WITHINGS_DB_PATH)
@@ -561,7 +571,7 @@ async def get_health_stats(
     """
     DEPRECATED: This endpoint will be removed in a future version.
     Use '/health/summary/{period}' with appropriate metrics parameters instead.
-    
+
     Get statistical analysis of health metrics
     """
     db = get_db(WITHINGS_DB_PATH)
@@ -626,5 +636,3 @@ def classify_bp(value: float, type_: int) -> str:
             return "Stage 1 Hypertension"
         return "Stage 2 Hypertension"
     return "Unknown"
-
-

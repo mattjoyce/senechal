@@ -1,4 +1,4 @@
-# app/config.py
+"""Configuration file for the application."""
 import os
 from pathlib import Path
 
