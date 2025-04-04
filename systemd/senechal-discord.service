@@ -1,0 +1,15 @@
+[Unit]
+Description=Senechal Discord Bot
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/api/senechal-discord
+ExecStart=/bin/bash -c "source /home/ubuntu/api/senechal-discord/venv/bin/activate && python3 senechal_discord.py --config config.yaml start"
+Restart=always
+Environment="PATH=/home/ubuntu/api/senechal-discord/venv/bin:/usr/bin:/bin"
+StandardOutput=file:/var/log/senechal-discord.log
+StandardError=file:/var/log/senechal-discord-error.log
+
+[Install]
+WantedBy=multi-user.target

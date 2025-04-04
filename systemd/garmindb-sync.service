@@ -1,0 +1,17 @@
+[Unit]
+Description=GarminDB Sync
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/garmindb
+ExecStart=/bin/bash -c "source /home/ubuntu/garmindb/venv/bin/activate && python /home/ubuntu/garmindb/venv/bin/garmindb_cli.py --all --download --import --analyze --latest"
+Restart=always
+Environment="PATH=/home/ubuntu/garmindb/venv/bin:/usr/bin:/bin"
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+StandardOutput=file:/var/log/garmindb.log
+StandardError=file:/var/log/garmindb-error.log

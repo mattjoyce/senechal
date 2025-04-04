@@ -1,0 +1,9 @@
+# /etc/systemd/system/withings_run.service
+[Unit]
+Description=Withings ETL Script
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/api/senechal
+ExecStart=/home/ubuntu/api/senechal/venv/bin/python -m app.etl.withings_run

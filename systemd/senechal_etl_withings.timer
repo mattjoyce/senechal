@@ -1,0 +1,10 @@
+# /etc/systemd/system/withings_run.timer
+[Unit]
+Description=Run Withings ETL Daily
+
+[Timer]
+OnCalendar=*-*-* *:03:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

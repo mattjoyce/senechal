@@ -1,0 +1,9 @@
+# /etc/systemd/system/garmin_run.service
+[Unit]
+Description=Garmin ETL Script
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/api/senechal
+ExecStart=/home/ubuntu/api/senechal/venv/bin/python -m app.etl.garmin_run
