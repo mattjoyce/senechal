@@ -61,7 +61,7 @@ def extract_json_from_text(text: str) -> dict:
 
 
 async def extract_rowing_data(
-    image_data: bytes, model_name: str = "chatgpt-4o"
+    image_data: bytes, model_name: str = "gpt-4o"
 ) -> Dict[str, Any]:
     """
     Extract rowing workout data from an image using an LLM.
@@ -113,3 +113,32 @@ async def extract_rowing_data(
     except Exception as error:
         logger.error(f"Data validation failed: {str(error)}")
         raise ValueError(f"Extracted data does not match expected schema: {str(error)}")
+
+
+def extract_knowledge(text: str, model_name: str = "gpt-4o") -> str:
+    """
+    Extract knowledge from a text using a specific prompt.
+
+    This function uses a prompt to extract knowledge from a given text.
+    The knowledge is extracted using a specific prompt designed for
+    extracting knowledge from text.
+
+    Args:
+        text: The text to extract knowledge from
+    """
+    # Load the prompt from the prompt file
+    prompt = load_prompt("extract_learning.md")
+    logger.debug(f"Calling LLM with prompt: {prompt}")
+    context = prompt + "\n" + text
+    try:
+        # Get the model and send the prompt with the image
+        model = llm.get_model(model_name)
+        llm_response = model.prompt(prompt=context)
+        result_text = llm_response.text()
+
+        logger.debug(f"LLM raw response: {result_text[:200]}...")
+
+        return result_text
+    except Exception as error:
+        logger.error(f"Failed to extract knowledge: {str(error)}")
+        raise ValueError(f"Failed to extract knowledge: {str(error)}")

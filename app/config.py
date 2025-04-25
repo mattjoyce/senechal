@@ -24,5 +24,15 @@ API_ROLES_PATH = os.getenv("API_ROLES_PATH")
 
 HEALTH_PROFILE_PATH = os.getenv("HEALTH_PROFILE_PATH")
 
+# Senechal API URL
+SENECHAL_API_URL = os.getenv("SENECHAL_API_URL")
+
 # Logging path - defaults to log directory in project root
 APP_LOGGING_PATH = os.getenv("APP_LOGGING_PATH", PROJECT_ROOT / "log")
+
+JINAAI_API_KEY = os.getenv("JINAAI_API_KEY")
+JINAAI_URL = os.getenv("JINAAI_URL")
+LEARNING_CONTENT_PATH = os.getenv("LEARNING_CONTENT_PATH")
+
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
+YOUTUBE_API_URL = os.getenv("YOUTUBE_API_URL")
