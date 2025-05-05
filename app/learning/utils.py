@@ -6,14 +6,14 @@ from pathlib import Path
 from typing import Optional
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from youtube_transcript_api import YouTubeTranscriptApi
 import os
 
 import requests
 import yaml
 from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api.proxies import GenericProxyConfig
 
-from app.config import (JINAAI_API_KEY, JINAAI_URL, LEARNING_CONTENT_PATH,
+from app.config import (JINAAI_API_KEY, JINAAI_URL, LEARNING_CONTENT_PATH,PROXY_HTTP_URL, PROXY_HTTPS_URL,
                         YOUTUBE_API_KEY, YOUTUBE_API_URL)
 
 # Get logger
@@ -214,7 +214,13 @@ def get_youtube_transcript(url: str) -> tuple[str, str]:
     
     # Get transcript
     try:
-        transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
+        ytt_api = YouTubeTranscriptApi(
+            proxy_config=GenericProxyConfig(
+                http_url= PROXY_HTTP_URL,
+                https_url= PROXY_HTTPS_URL,
+            )
+        )
+        transcript_list = ytt_api.get_transcript(video_id)
         transcript = '\n'.join([item['text'] for item in transcript_list])
         
         # Format content as markdown
