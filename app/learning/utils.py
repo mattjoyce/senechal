@@ -220,8 +220,8 @@ def get_youtube_transcript(url: str) -> tuple[str, str]:
                 https_url= PROXY_HTTPS_URL,
             )
         )
-        transcript_list = ytt_api.get_transcript(video_id)
-        transcript = '\n'.join([item['text'] for item in transcript_list])
+        transcript_list = ytt_api.fetch(video_id)
+        transcript = '\n'.join([item.text for item in transcript_list])
         
         # Format content as markdown
         content = f"# {title}\n\n**Author:** {author}\n\n**Date:** {date}\n\n**Description:**\n\n{description}\n\n## Transcript\n\n{transcript}"
