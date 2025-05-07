@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import PlainTextResponse
 
 from app.auth import check_access
-from app.config import SENECHAL_API_URL
+from app.config import SENECHAL_API_URL, LEARNING_CONTENT_PATH
 from app.learning.models import LearningItemRequest, LearningResponse
 from app.learning.utils import (get_content_path, parse_frontmatter,
                                 save_learning_content, scrape_url)
@@ -196,7 +196,7 @@ async def list_learning_files(
     files = []
     
     try:
-        for file_path in LEARNING_CONTENT_DIR.glob("*.md"):
+        for file_path in LEARNING_CONTENT_PATH.glob("*.md"):
             # Skip raw content files
             if file_path.stem.endswith("_raw"):
                 continue
