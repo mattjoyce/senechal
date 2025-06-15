@@ -39,6 +39,7 @@ def save_learning_content(
     source_url: Optional[str] = None,
     content_type: str = "text",
     raw_content: Optional[str] = None,
+    channel_name: Optional[str] = None,
 ) -> str:
     """
     Save learning content to a markdown file with frontmatter
@@ -49,6 +50,7 @@ def save_learning_content(
         source_url: Optional source URL
         content_type: Type of content (webpage, youtube, text)
         raw_content: Optional original raw content
+        channel_name: Optional channel name for YouTube videos
 
     Returns:
         ID of the created file
@@ -65,6 +67,10 @@ def save_learning_content(
         "content_type": content_type,
         "status": "active",
     }
+    
+    # Add channel name if provided (for YouTube videos)
+    if channel_name:
+        metadata["channel_name"] = channel_name
 
     # Format the markdown file with frontmatter
     frontmatter = yaml.dump(metadata, default_flow_style=False)
@@ -110,22 +116,34 @@ def parse_frontmatter(content: str) -> tuple:
         return {}, content
 
 
-def scrape_url(url: str) -> str:
+def scrape_url(url: str) -> dict:
     """
-    Scrape content from a URL (placeholder function)
-
+    Scrape content from a URL
+    
     Args:
         url: URL to scrape
-
+        
     Returns:
-        str: Scraped content
+        dict: Dictionary containing content and metadata
     """
     url_str = str(url)
     # Check if the URL is a YouTube link
     if 'youtube.com' in url_str or 'youtu.be' in url_str:
         # Use YouTube specific extraction
-        _, content = get_youtube_transcript(url_str)
-        return content
+        title, content = get_youtube_transcript(url_str)
+        
+        # Extract channel name from content
+        channel_name = None
+        if "**Author:** " in content:
+            author_line = [line for line in content.split('\n') if line.startswith('**Author:** ')][0]
+            channel_name = author_line.replace('**Author:** ', '')
+        
+        return {
+            'content': content,
+            'title': title,
+            'channel_name': channel_name,
+            'content_type': 'youtube'
+        }
 
 
 
@@ -142,8 +160,14 @@ def scrape_url(url: str) -> str:
     }
 
     logger.info(f"Requesting JINA URL: {jina_url}")
-    reponse= requests.get(jina_url, headers=headers)
-    return reponse.text
+    response = requests.get(jina_url, headers=headers)
+    
+    return {
+        'content': response.text,
+        'title': None,
+        'channel_name': None,
+        'content_type': 'webpage'
+    }
 
 
    

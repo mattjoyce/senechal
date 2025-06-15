@@ -10,6 +10,8 @@ from fastapi.responses import PlainTextResponse
 from app.auth import check_access
 from app.config import SENECHAL_API_URL, LEARNING_CONTENT_PATH
 from app.learning.models import LearningItemRequest, LearningResponse
+from pathlib import Path
+
 from app.learning.utils import (get_content_path, parse_frontmatter,
                                 save_learning_content, scrape_url)
 from app.llm.llm_services import extract_knowledge
@@ -36,21 +38,34 @@ async def scrape(request: LearningItemRequest):
     """
     logger.info(f"Received URL processing request: {request.url}")
 
-    scraped_result=scrape_url(request.url)
+    scraped_result = scrape_url(request.url)
     if scraped_result is None:
         return LearningResponse(
             status="error",
             message="Failed to scrape the URL"
         )
-    logger.info(f"Scraped content: {scraped_result[:2000]}")
-    knowledge=extract_knowledge(scraped_result, model_name="gpt-4o")
+    
+    # Extract metadata from scraped result
+    content = scraped_result.get('content', '')
+    title = scraped_result.get('title')
+    channel_name = scraped_result.get('channel_name')
+    content_type = scraped_result.get('content_type', 'webpage')
+    url_str = str(request.url)
+    
+    logger.info(f"Scraped content: {content[:2000]}")
+    knowledge = extract_knowledge(content, model_name="gpt-4o")
     logger.info(f"Knowledge extracted: {knowledge[:2000]}")
-
-    id=save_learning_content(
-        title=request.url,
+    
+    # Use YouTube title if available, otherwise use URL
+    final_title = title if title else url_str
+    
+    id = save_learning_content(
+        title=final_title,
         content=knowledge,
-        source_url=request.url,
-        raw_content=scraped_result
+        source_url=url_str,
+        content_type=content_type,
+        raw_content=content,
+        channel_name=channel_name
     )
 
     ##create the new url
@@ -196,7 +211,8 @@ async def list_learning_files(
     files = []
     
     try:
-        for file_path in LEARNING_CONTENT_PATH.glob("*.md"):
+        content_path = Path(LEARNING_CONTENT_PATH)
+        for file_path in content_path.glob("*.md"):
             # Skip raw content files
             if file_path.stem.endswith("_raw"):
                 continue
@@ -210,14 +226,21 @@ async def list_learning_files(
             if status.lower() != "all" and frontmatter.get("status", "active") != status.lower():
                 continue
             
-            files.append({
+            file_info = {
                 "id": frontmatter.get("id", file_path.stem),
                 "title": frontmatter.get("title", "Untitled"),
                 "created": frontmatter.get("created"),
                 "content_type": frontmatter.get("content_type", "text"),
                 "status": frontmatter.get("status", "active"),
+                "source_url": frontmatter.get("source_url"),
                 "url": f"/learning/file/{file_path.stem}"
-            })
+            }
+            
+            # Add channel name for YouTube videos
+            if frontmatter.get("channel_name"):
+                file_info["channel_name"] = frontmatter.get("channel_name")
+                
+            files.append(file_info)
         
         return LearningResponse(
             status="success",
