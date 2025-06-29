@@ -140,7 +140,7 @@ async def list_analyses():
         raise HTTPException(status_code=500, detail=f"Failed to list analyses: {str(e)}")
 
 
-@router.get("/file/{analysis_id}", response_class=PlainTextResponse, dependencies=[Depends(check_access("/analysis/file"))])
+@router.get("/file/{analysis_id}", response_class=PlainTextResponse)
 async def get_analysis_file(analysis_id: str):
     """
     Get analysis file content by ID
