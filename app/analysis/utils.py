@@ -79,7 +79,7 @@ def process_content_for_analysis(
         # Use existing scraping functionality from learning module
         scraped_data = scrape_url(url)
         content = scraped_data.get("content", "")
-        title = scraped_data.get("title", "Untitled")
+        title = scraped_data.get("title") or "Untitled Analysis"
         content_type_str = scraped_data.get("content_type", "webpage")
         
         # Map content type
