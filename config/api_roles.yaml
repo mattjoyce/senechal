@@ -11,6 +11,11 @@ roles:
       - "/health/rowing/get"
       - "/setTest"
       - "/health/rowing/submit"
+      - "/learning/scrape"
+      - "/learning/memo"
+      - "/learning/rm"
+      - "/learning/file"
+      - "/learning/list"
   read:
     access:
       - "/getTest"

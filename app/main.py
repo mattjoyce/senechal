@@ -8,6 +8,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from .auth import check_access, get_api_key
 from .health.routes import router as health_router
+from .learning.routes import router as learning_router
 from .logging_config import setup_logging
 
 # Set up logging
@@ -64,7 +65,8 @@ app.add_middleware(RequestLoggingMiddleware)
 
 # Include the health router
 app.include_router(health_router)
-
+# Add this line to include the learning router
+app.include_router(learning_router)
 
 # Data model for writing to file
 class TestData(BaseModel):
