@@ -16,6 +16,10 @@ roles:
       - "/learning/rm"
       - "/learning/file"
       - "/learning/list"
+      - "/analysis/analyze"
+      - "/analysis/list"
+      - "/analysis/file"
+      - "/analysis/types"
   read:
     access:
       - "/getTest"
@@ -26,6 +30,9 @@ roles:
       - "/health/summary"
       - "/health/availablemetrics"
       - "/health/rowing/get"
+      - "/analysis/list"
+      - "/analysis/file"
+      - "/analysis/types"
   write:
     access:
       - "/setTest"
