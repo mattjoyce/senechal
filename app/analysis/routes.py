@@ -11,9 +11,13 @@ from app.analysis.models import (
     AnalysisListItem, AnalysisType, ContentType
 )
 from app.analysis.utils import (
-    process_content_for_analysis, perform_analysis, save_analysis_result,
-    generate_analysis_id, get_analysis_file_content, list_analysis_files
+    get_analysis_file_content, list_analysis_files
 )
+from app.llm.llm_services import (
+    process_input_content, perform_llm_processing, get_prompt_by_name,
+    generate_llm_id, save_llm_result
+)
+from app.llm.models import OutputFormat
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -35,53 +39,80 @@ async def analyze_content(request: AnalyzeRequest):
         if request.url and request.text:
             raise HTTPException(status_code=400, detail="Provide either URL or text, not both")
         
-        # Process content for analysis
+        # Process content using unified LLM service
         logger.info(f"Processing content for analysis - Type: {request.analysis_type}")
-        raw_content, title, content_type, source_url = process_content_for_analysis(
-            url=request.url,
-            text=request.text
+        raw_content, title, source_type, source_url = process_input_content(
+            query_url=request.url,
+            query_text=request.text
         )
         
         if not raw_content.strip():
             raise HTTPException(status_code=400, detail="No content found to analyze")
         
-        # Perform analysis
+        # Map analysis type to prompt name
+        prompt_map = {
+            AnalysisType.SUMMARY: "analyze_summary",
+            AnalysisType.EXTRACTION: "analyze_extraction",
+            AnalysisType.CLASSIFICATION: "analyze_classification",
+            AnalysisType.SENTIMENT: "analyze_summary",  # Use summary for now
+            AnalysisType.KEYWORDS: "analyze_extraction",  # Use extraction for now
+        }
+        
+        # Get the appropriate prompt
+        if request.analysis_type == AnalysisType.CUSTOM and request.custom_prompt:
+            prompt = request.custom_prompt
+            prompt_name = "custom"
+        else:
+            prompt_name = prompt_map.get(request.analysis_type, "analyze_summary")
+            prompt = get_prompt_by_name(prompt_name)
+        
+        # Perform analysis using unified LLM service
         logger.info(f"Performing {request.analysis_type} analysis using {request.model_name}")
-        analysis_content = perform_analysis(
+        analysis_content = perform_llm_processing(
             content=raw_content,
-            analysis_type=request.analysis_type,
-            custom_prompt=request.custom_prompt,
-            model_name=request.model_name
+            prompt=prompt,
+            model_name=request.model_name,
+            output_format=OutputFormat.MARKDOWN
         )
         
+        # Generate result ID
+        result_id = generate_llm_id()
+        
         # Save result if requested
-        analysis_id = generate_analysis_id()
         if request.save_result:
-            logger.info(f"Saving analysis result with ID: {analysis_id}")
-            save_analysis_result(
-                analysis_id=analysis_id,
+            logger.info(f"Saving analysis result with ID: {result_id}")
+            save_llm_result(
+                result_id=result_id,
                 title=title,
-                analysis_type=request.analysis_type,
-                content_type=content_type,
+                prompt_used=prompt_name,
+                model_used=request.model_name,
+                source_type=source_type,
                 source_url=source_url,
-                analysis_content=analysis_content,
+                content=analysis_content,
                 raw_content=raw_content,
-                model_used=request.model_name
+                output_format=OutputFormat.MARKDOWN,
+                metadata={
+                    "legacy_endpoint": "analysis_analyze",
+                    "analysis_type": request.analysis_type.value,
+                    "content_type": "webpage" if source_type == "url" else "text"
+                }
             )
             
-            # Return URL like learning endpoint when saving
-            from app.config import SENECHAL_API_URL
-            analysis_url = f"{SENECHAL_API_URL}/analysis/file/{analysis_id}"
+            # Return URL pointing to LLM service
+            analysis_url = f"{SENECHAL_API_URL}/llm/file/{result_id}"
             
             return AnalysisResponse(
                 status="success",
-                message=f"Analysis completed using {request.analysis_type} method and saved",
+                message=f"Analysis completed using {request.analysis_type} method and saved via unified LLM service",
                 data={"url": analysis_url}
             )
         
         # Create response with full content when not saving
+        # Map source_type back to ContentType for compatibility
+        content_type = ContentType.WEBPAGE if source_type == "url" else ContentType.TEXT
+        
         result = AnalysisResult(
-            id=analysis_id,
+            id=result_id,
             title=title,
             analysis_type=request.analysis_type,
             content_type=content_type,
@@ -94,7 +125,7 @@ async def analyze_content(request: AnalyzeRequest):
         
         return AnalysisResponse(
             status="success",
-            message=f"Analysis completed using {request.analysis_type} method",
+            message=f"Analysis completed using {request.analysis_type} method via unified LLM service",
             data=result
         )
         

@@ -1,1 +1,2496 @@
-{"openapi":"3.1.0","info":{"title":"FastAPI","version":"0.1.0"},"paths":{"/health/rowing/submit":{"post":{"tags":["health"],"summary":"Submit Rowing Data","description":"Extract rowing data from an image and save it to the database.\n\nThis endpoint:\n1. Downloads an image from the provided URL\n2. Uses an LLM to extract structured workout data\n3. Saves the data to the database\n\nReturns:\n    A response containing the status, workout ID, and extracted data","operationId":"submit_rowing_data_health_rowing_submit_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/RowingExtractRequest"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}},"security":[{"APIKeyHeader":[]}]}},"/health/rowing/get/{period}":{"get":{"tags":["health"],"summary":"Get Rowing Workouts","description":"Get rowing workout data for a specific time period.\n\nRetrieves rowing workouts from the database for the specified period.\n\nArgs:\n    period: The period type (day, week, month, year)\n    span: Number of periods to return (1-52)\n    offset: Number of periods to offset from now\n\nReturns:\n    A list of rowing workouts for the specified period","operationId":"get_rowing_workouts_health_rowing_get__period__get","security":[{"APIKeyHeader":[]}],"parameters":[{"name":"period","in":"path","required":true,"schema":{"enum":["day","week","month","year"],"type":"string","title":"Period"}},{"name":"span","in":"query","required":false,"schema":{"type":"integer","maximum":52,"minimum":1,"description":"Number of periods to return","default":1,"title":"Span"},"description":"Number of periods to return"},{"name":"offset","in":"query","required":false,"schema":{"type":"integer","minimum":0,"description":"Number of periods to offset from now","default":0,"title":"Offset"},"description":"Number of periods to offset from now"}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RowingResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/health/availablemetrics":{"get":{"tags":["health"],"summary":"Get Available Metrics","description":"Get a list of available metrics.","operationId":"get_available_metrics_health_availablemetrics_get","responses":{"200":{"description":"Successful Response","content":{"text/plain":{"schema":{"type":"string"}}}}},"security":[{"APIKeyHeader":[]}]}},"/health/summary/{period}":{"get":{"tags":["health"],"summary":"Get Health Summary","description":"Get health summary data for a specific period.","operationId":"get_health_summary_health_summary__period__get","security":[{"APIKeyHeader":[]}],"parameters":[{"name":"period","in":"path","required":true,"schema":{"enum":["day","week","month","year"],"type":"string","title":"Period"}},{"name":"metrics","in":"query","required":false,"schema":{"type":"string","description":"Comma-separated metrics/groups or 'all'. Use '@' prefix for metric groups.","default":"all","title":"Metrics"},"description":"Comma-separated metrics/groups or 'all'. Use '@' prefix for metric groups."},{"name":"span","in":"query","required":false,"schema":{"type":"integer","maximum":52,"minimum":1,"description":"Number of periods to return","default":1,"title":"Span"},"description":"Number of periods to return"},{"name":"offset","in":"query","required":false,"schema":{"type":"integer","minimum":0,"description":"Number of periods to offset from now","default":0,"title":"Offset"},"description":"Number of periods to offset from now"}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HealthSummaryResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/health/profile":{"get":{"tags":["health"],"summary":"Get Health Profile","description":"Get health profile from configured file location","operationId":"get_health_profile_health_profile_get","responses":{"200":{"description":"Successful Response","content":{"text/plain":{"schema":{"type":"string"}}}}},"security":[{"APIKeyHeader":[]}]}},"/health/current":{"get":{"tags":["health"],"summary":"Get Current Measurements","description":"DEPRECATED: This endpoint will be removed in a future version.\nUse '/health/summary/day' with span=1 instead.\n\nGet latest measurements for all health metrics","operationId":"get_current_measurements_health_current_get","deprecated":true,"security":[{"APIKeyHeader":[]}],"parameters":[{"name":"types","in":"query","required":false,"schema":{"anyOf":[{"type":"array","items":{"type":"integer"}},{"type":"null"}],"description":"Filter by measurement types","title":"Types"},"description":"Filter by measurement types"}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HealthResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/health/trends":{"get":{"tags":["health"],"summary":"Get Health Trends","description":"DEPRECATED: This endpoint will be removed in a future version.\nUse '/health/summary/{period}' with appropriate period and span parameters instead.\n\nGet trend data for specified period and metrics","operationId":"get_health_trends_health_trends_get","deprecated":true,"security":[{"APIKeyHeader":[]}],"parameters":[{"name":"days","in":"query","required":false,"schema":{"type":"integer","description":"Number of days to analyze","default":30,"title":"Days"},"description":"Number of days to analyze"},{"name":"types","in":"query","required":false,"schema":{"anyOf":[{"type":"array","items":{"type":"integer"}},{"type":"null"}],"description":"Filter by measurement types","title":"Types"},"description":"Filter by measurement types"},{"name":"interval","in":"query","required":false,"schema":{"type":"string","description":"Grouping interval: day, week, month","default":"day","title":"Interval"},"description":"Grouping interval: day, week, month"}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/TrendResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/health/stats":{"get":{"tags":["health"],"summary":"Get Health Stats","description":"DEPRECATED: This endpoint will be removed in a future version.\nUse '/health/summary/{period}' with appropriate metrics parameters instead.\n\nGet statistical analysis of health metrics","operationId":"get_health_stats_health_stats_get","deprecated":true,"security":[{"APIKeyHeader":[]}],"parameters":[{"name":"days","in":"query","required":false,"schema":{"anyOf":[{"type":"integer"},{"type":"null"}],"description":"Analysis period in days","default":30,"title":"Days"},"description":"Analysis period in days"},{"name":"types","in":"query","required":false,"schema":{"anyOf":[{"type":"array","items":{"type":"integer"}},{"type":"null"}],"description":"Filter by measurement types","title":"Types"},"description":"Filter by measurement types"}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/StatsResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/learning/scrape":{"post":{"tags":["learning"],"summary":"Scrape","description":"Basic endpoint to test URL processing.\n\nThis is a placeholder that will later extract content from the provided URL.\n\nReturns:\n    LearningResponse: Status and message","operationId":"scrape_learning_scrape_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/LearningItemRequest"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/LearningResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}},"security":[{"APIKeyHeader":[]}]}},"/learning/memo":{"post":{"tags":["learning"],"summary":"Create Memo","description":"Basic endpoint to test memo text processing.\n\nThis is a placeholder that will later process the provided text content.\n\nReturns:\n    LearningResponse: Status and message","operationId":"create_memo_learning_memo_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/LearningItemRequest"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/LearningResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}},"security":[{"APIKeyHeader":[]}]}},"/learning/rm":{"post":{"tags":["learning"],"summary":"Remove Learning Item","description":"Remove a learning file.\n\nArgs:\n    id: ID of the learning file to remove\n    \nReturns:\n    LearningResponse: Status and message","operationId":"remove_learning_item_learning_rm_post","security":[{"APIKeyHeader":[]}],"parameters":[{"name":"id","in":"query","required":true,"schema":{"type":"string","title":"Id"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/LearningResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/learning/file/{file_id}":{"get":{"tags":["learning"],"summary":"Get Learning File","description":"Get a learning content file by ID.\n\nArgs:\n    file_id: ID of the learning file to retrieve\n    \nReturns:\n    PlainTextResponse: The markdown content","operationId":"get_learning_file_learning_file__file_id__get","parameters":[{"name":"file_id","in":"path","required":true,"schema":{"type":"string","title":"File Id"}}],"responses":{"200":{"description":"Successful Response","content":{"text/plain":{"schema":{"type":"string"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/learning/list":{"get":{"tags":["learning"],"summary":"List Learning Files","description":"List learning content files.\n\nArgs:\n    status: Filter by file status\n    \nReturns:\n    LearningResponse: List of learning files","operationId":"list_learning_files_learning_list_get","security":[{"APIKeyHeader":[]}],"parameters":[{"name":"status","in":"query","required":false,"schema":{"type":"string","description":"Filter by status (active, archived, all)","default":"active","title":"Status"},"description":"Filter by status (active, archived, all)"}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/LearningResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/getTest":{"get":{"summary":"Get Test","description":"Read data from a file","operationId":"get_test_getTest_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}}},"security":[{"APIKeyHeader":[]}]}},"/setTest":{"post":{"summary":"Set Test","description":"Write data to a file","operationId":"set_test_setTest_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/TestData"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}},"security":[{"APIKeyHeader":[]}]}}},"components":{"schemas":{"HTTPValidationError":{"properties":{"detail":{"items":{"$ref":"#/components/schemas/ValidationError"},"type":"array","title":"Detail"}},"type":"object","title":"HTTPValidationError"},"HealthResponse":{"properties":{"measurements":{"items":{"$ref":"#/components/schemas/Measurement"},"type":"array","title":"Measurements"},"timestamp":{"type":"string","format":"date-time","title":"Timestamp","default":"2025-06-29T02:12:25.800343"},"timezone":{"type":"string","title":"Timezone","default":"UTC"}},"type":"object","required":["measurements"],"title":"HealthResponse","description":"All timestamps are in UTC"},"HealthSummaryResponse":{"properties":{"period_type":{"type":"string","title":"Period Type"},"summaries":{"items":{"$ref":"#/components/schemas/PeriodSummary"},"type":"array","title":"Summaries"},"generated_at":{"type":"string","format":"date-time","title":"Generated At","default":"2025-06-29T02:12:25.805106"}},"type":"object","required":["period_type","summaries"],"title":"HealthSummaryResponse","description":"Model representing a summary of health metrics over a specified period."},"LearningItemRequest":{"properties":{"url":{"anyOf":[{"type":"string","maxLength":2083,"minLength":1,"format":"uri"},{"type":"null"}],"title":"Url"},"text":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Text"}},"type":"object","title":"LearningItemRequest","description":"Request model for creating a learning item from a URL."},"LearningResponse":{"properties":{"status":{"type":"string","title":"Status"},"message":{"type":"string","title":"Message"},"data":{"anyOf":[{"type":"object"},{"type":"null"}],"title":"Data"}},"type":"object","required":["status","message"],"title":"LearningResponse","description":"Response model for learning API endpoints."},"Measurement":{"properties":{"id":{"type":"integer","title":"Id"},"date":{"type":"string","format":"date-time","title":"Date"},"type":{"type":"integer","title":"Type"},"value":{"type":"number","title":"Value"},"measure_name":{"type":"string","title":"Measure Name"},"display_unit":{"type":"string","title":"Display Unit"}},"type":"object","required":["id","date","type","value","measure_name","display_unit"],"title":"Measurement","description":"Health measurement data point. All timestamps are in UTC"},"MetricValue":{"properties":{"avg":{"anyOf":[{"type":"number"},{"type":"null"}],"title":"Avg"},"min":{"anyOf":[{"type":"number"},{"type":"null"}],"title":"Min"},"max":{"anyOf":[{"type":"number"},{"type":"null"}],"title":"Max"},"unit":{"type":"string","title":"Unit"},"sample_count":{"type":"integer","title":"Sample Count"}},"type":"object","required":["avg","min","max","unit","sample_count"],"title":"MetricValue","description":"Model representing a metric value."},"PeriodSummary":{"properties":{"period_start":{"type":"string","format":"date-time","title":"Period Start"},"period_end":{"type":"string","format":"date-time","title":"Period End"},"metrics":{"additionalProperties":{"$ref":"#/components/schemas/MetricValue"},"type":"object","title":"Metrics"}},"type":"object","required":["period_start","period_end","metrics"],"title":"PeriodSummary","description":"Model representing a summary of health metrics for a specific period."},"RowingExtractRequest":{"properties":{"image_url":{"type":"string","maxLength":2083,"minLength":1,"format":"uri","title":"Image Url"},"workout_date":{"anyOf":[{"type":"string","format":"date-time"},{"type":"null"}],"title":"Workout Date"}},"type":"object","required":["image_url"],"title":"RowingExtractRequest","description":"Request model for the rowing workout image extraction endpoint.\n\nAttributes:\n    image_url: URL of the rowing machine workout screenshot to process\n    workout_date: Optional timestamp when the workout was performed.\n                 If not provided, the current date will be used."},"RowingResponse":{"properties":{"workouts":{"items":{"$ref":"#/components/schemas/RowingWorkout"},"type":"array","title":"Workouts"},"timestamp":{"type":"string","format":"date-time","title":"Timestamp","default":"2025-06-29T02:12:25.808837"},"timezone":{"type":"string","title":"Timezone","default":"UTC"}},"type":"object","required":["workouts"],"title":"RowingResponse","description":"Response model for the rowing workout retrieval endpoint.\nIncludes a list of workouts and metadata about the response.\n\nAttributes:\n    workouts: List of rowing workout records matching the query parameters\n    timestamp: UTC timestamp when the response was generated\n    timezone: Timezone identifier for the timestamps in the response (always \"UTC\")\n\nExample:\n    {\n        \"workouts\": [\n            {\n                \"id\": 1,\n                \"date\": \"2023-10-15T08:30:00\",\n                \"workout_type\": \"distance\",\n                \"duration_seconds\": 1800.5,\n                \"distance_meters\": 5000.0,\n                \"avg_split\": 120.0\n            }\n        ],\n        \"timestamp\": \"2023-10-16T14:22:10.123456\",\n        \"timezone\": \"UTC\"\n    }"},"RowingWorkout":{"properties":{"id":{"type":"integer","title":"Id"},"date":{"type":"string","format":"date-time","title":"Date"},"workout_type":{"type":"string","title":"Workout Type"},"duration_seconds":{"type":"number","title":"Duration Seconds"},"distance_meters":{"type":"number","title":"Distance Meters"},"avg_split":{"anyOf":[{"type":"number"},{"type":"null"}],"title":"Avg Split"}},"type":"object","required":["id","date","workout_type","duration_seconds","distance_meters"],"title":"RowingWorkout","description":"Model representing a rowing workout stored in the database.\nIncludes all rowing metrics plus metadata like ID and timestamp.\n\nAttributes:\n    id: Unique identifier for the workout record\n    date: Timestamp when the workout was performed (UTC)\n    workout_type: Type of workout - \"distance\" or \"interval\"\n    duration_seconds: Total duration of the workout in seconds\n    distance_meters: Total distance rowed in meters\n    avg_split: Average split time in seconds per 500m (may be null for interval workouts)"},"StatMeasurement":{"properties":{"type":{"type":"integer","title":"Type"},"measure_name":{"type":"string","title":"Measure Name"},"avg_value":{"type":"number","title":"Avg Value"},"min_value":{"type":"number","title":"Min Value"},"max_value":{"type":"number","title":"Max Value"},"display_unit":{"type":"string","title":"Display Unit"},"reading_count":{"type":"integer","title":"Reading Count"},"classification":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Classification"}},"type":"object","required":["type","measure_name","avg_value","min_value","max_value","display_unit","reading_count"],"title":"StatMeasurement","description":"Model representing a statistical measurement."},"StatsResponse":{"properties":{"stats":{"items":{"$ref":"#/components/schemas/StatMeasurement"},"type":"array","title":"Stats"},"timestamp":{"type":"string","format":"date-time","title":"Timestamp","default":"2025-06-29T02:12:25.801924"},"timezone":{"type":"string","title":"Timezone","default":"UTC"}},"type":"object","required":["stats"],"title":"StatsResponse","description":"All timestamps are in UTC"},"TestData":{"properties":{"content":{"type":"string","title":"Content"}},"type":"object","required":["content"],"title":"TestData","description":"Data model for writing to a file"},"TrendMeasurement":{"properties":{"period":{"type":"string","format":"date-time","title":"Period"},"type":{"type":"integer","title":"Type"},"measure_name":{"type":"string","title":"Measure Name"},"avg_value":{"type":"number","title":"Avg Value"},"min_value":{"type":"number","title":"Min Value"},"max_value":{"type":"number","title":"Max Value"},"display_unit":{"type":"string","title":"Display Unit"},"reading_count":{"type":"integer","title":"Reading Count"}},"type":"object","required":["period","type","measure_name","avg_value","min_value","max_value","display_unit","reading_count"],"title":"TrendMeasurement","description":"Model representing a trend measurement."},"TrendResponse":{"properties":{"trends":{"items":{"$ref":"#/components/schemas/TrendMeasurement"},"type":"array","title":"Trends"},"timestamp":{"type":"string","format":"date-time","title":"Timestamp","default":"2025-06-29T02:12:25.801328"},"timezone":{"type":"string","title":"Timezone","default":"UTC"}},"type":"object","required":["trends"],"title":"TrendResponse","description":"All timestamps are in UTC"},"ValidationError":{"properties":{"loc":{"items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"type":"array","title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error Type"}},"type":"object","required":["loc","msg","type"],"title":"ValidationError"}},"securitySchemes":{"APIKeyHeader":{"type":"apiKey","in":"header","name":"X-API-Key"}}}}
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "FastAPI",
+        "version": "0.1.0"
+    },
+    "paths": {
+        "/health/rowing/submit": {
+            "post": {
+                "tags": [
+                    "health"
+                ],
+                "summary": "Submit Rowing Data",
+                "description": "Extract rowing data from an image and save it to the database.\n\nThis endpoint:\n1. Downloads an image from the provided URL\n2. Uses an LLM to extract structured workout data\n3. Saves the data to the database\n\nReturns:\n    A response containing the status, workout ID, and extracted data",
+                "operationId": "submit_rowing_data_health_rowing_submit_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RowingExtractRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/health/rowing/get/{period}": {
+            "get": {
+                "tags": [
+                    "health"
+                ],
+                "summary": "Get Rowing Workouts",
+                "description": "Get rowing workout data for a specific time period.\n\nRetrieves rowing workouts from the database for the specified period.\n\nArgs:\n    period: The period type (day, week, month, year)\n    span: Number of periods to return (1-52)\n    offset: Number of periods to offset from now\n\nReturns:\n    A list of rowing workouts for the specified period",
+                "operationId": "get_rowing_workouts_health_rowing_get__period__get",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "period",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "day",
+                                "week",
+                                "month",
+                                "year"
+                            ],
+                            "type": "string",
+                            "title": "Period"
+                        }
+                    },
+                    {
+                        "name": "span",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 52,
+                            "minimum": 1,
+                            "description": "Number of periods to return",
+                            "default": 1,
+                            "title": "Span"
+                        },
+                        "description": "Number of periods to return"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "Number of periods to offset from now",
+                            "default": 0,
+                            "title": "Offset"
+                        },
+                        "description": "Number of periods to offset from now"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RowingResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health/availablemetrics": {
+            "get": {
+                "tags": [
+                    "health"
+                ],
+                "summary": "Get Available Metrics",
+                "description": "Get a list of available metrics.",
+                "operationId": "get_available_metrics_health_availablemetrics_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/health/summary/{period}": {
+            "get": {
+                "tags": [
+                    "health"
+                ],
+                "summary": "Get Health Summary",
+                "description": "Get health summary data for a specific period.",
+                "operationId": "get_health_summary_health_summary__period__get",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "period",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "day",
+                                "week",
+                                "month",
+                                "year"
+                            ],
+                            "type": "string",
+                            "title": "Period"
+                        }
+                    },
+                    {
+                        "name": "metrics",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Comma-separated metrics/groups or 'all'. Use '@' prefix for metric groups.",
+                            "default": "all",
+                            "title": "Metrics"
+                        },
+                        "description": "Comma-separated metrics/groups or 'all'. Use '@' prefix for metric groups."
+                    },
+                    {
+                        "name": "span",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 52,
+                            "minimum": 1,
+                            "description": "Number of periods to return",
+                            "default": 1,
+                            "title": "Span"
+                        },
+                        "description": "Number of periods to return"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "Number of periods to offset from now",
+                            "default": 0,
+                            "title": "Offset"
+                        },
+                        "description": "Number of periods to offset from now"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HealthSummaryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health/profile": {
+            "get": {
+                "tags": [
+                    "health"
+                ],
+                "summary": "Get Health Profile",
+                "description": "Get health profile from configured file location",
+                "operationId": "get_health_profile_health_profile_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/health/current": {
+            "get": {
+                "tags": [
+                    "health"
+                ],
+                "summary": "Get Current Measurements",
+                "description": "DEPRECATED: This endpoint will be removed in a future version.\nUse '/health/summary/day' with span=1 instead.\n\nGet latest measurements for all health metrics",
+                "operationId": "get_current_measurements_health_current_get",
+                "deprecated": true,
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "types",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by measurement types",
+                            "title": "Types"
+                        },
+                        "description": "Filter by measurement types"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HealthResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health/trends": {
+            "get": {
+                "tags": [
+                    "health"
+                ],
+                "summary": "Get Health Trends",
+                "description": "DEPRECATED: This endpoint will be removed in a future version.\nUse '/health/summary/{period}' with appropriate period and span parameters instead.\n\nGet trend data for specified period and metrics",
+                "operationId": "get_health_trends_health_trends_get",
+                "deprecated": true,
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "days",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Number of days to analyze",
+                            "default": 30,
+                            "title": "Days"
+                        },
+                        "description": "Number of days to analyze"
+                    },
+                    {
+                        "name": "types",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by measurement types",
+                            "title": "Types"
+                        },
+                        "description": "Filter by measurement types"
+                    },
+                    {
+                        "name": "interval",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Grouping interval: day, week, month",
+                            "default": "day",
+                            "title": "Interval"
+                        },
+                        "description": "Grouping interval: day, week, month"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TrendResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health/stats": {
+            "get": {
+                "tags": [
+                    "health"
+                ],
+                "summary": "Get Health Stats",
+                "description": "DEPRECATED: This endpoint will be removed in a future version.\nUse '/health/summary/{period}' with appropriate metrics parameters instead.\n\nGet statistical analysis of health metrics",
+                "operationId": "get_health_stats_health_stats_get",
+                "deprecated": true,
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "days",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "integer"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Analysis period in days",
+                            "default": 30,
+                            "title": "Days"
+                        },
+                        "description": "Analysis period in days"
+                    },
+                    {
+                        "name": "types",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by measurement types",
+                            "title": "Types"
+                        },
+                        "description": "Filter by measurement types"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/learning/scrape": {
+            "post": {
+                "tags": [
+                    "learning"
+                ],
+                "summary": "Scrape",
+                "description": "Basic endpoint to test URL processing.\n\nThis is a placeholder that will later extract content from the provided URL.\n\nReturns:\n    LearningResponse: Status and message",
+                "operationId": "scrape_learning_scrape_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LearningItemRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LearningResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/learning/memo": {
+            "post": {
+                "tags": [
+                    "learning"
+                ],
+                "summary": "Create Memo",
+                "description": "Basic endpoint to test memo text processing.\n\nThis is a placeholder that will later process the provided text content.\n\nReturns:\n    LearningResponse: Status and message",
+                "operationId": "create_memo_learning_memo_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LearningItemRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LearningResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/learning/rm": {
+            "post": {
+                "tags": [
+                    "learning"
+                ],
+                "summary": "Remove Learning Item",
+                "description": "Remove a learning file.\n\nArgs:\n    id: ID of the learning file to remove\n    \nReturns:\n    LearningResponse: Status and message",
+                "operationId": "remove_learning_item_learning_rm_post",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LearningResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/learning/file/{file_id}": {
+            "get": {
+                "tags": [
+                    "learning"
+                ],
+                "summary": "Get Learning File",
+                "description": "Get a learning content file by ID.\n\nArgs:\n    file_id: ID of the learning file to retrieve\n    \nReturns:\n    PlainTextResponse: The markdown content",
+                "operationId": "get_learning_file_learning_file__file_id__get",
+                "parameters": [
+                    {
+                        "name": "file_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "File Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/learning/list": {
+            "get": {
+                "tags": [
+                    "learning"
+                ],
+                "summary": "List Learning Files",
+                "description": "List learning content files.\n\nArgs:\n    status: Filter by file status\n    \nReturns:\n    LearningResponse: List of learning files",
+                "operationId": "list_learning_files_learning_list_get",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Filter by status (active, archived, all)",
+                            "default": "active",
+                            "title": "Status"
+                        },
+                        "description": "Filter by status (active, archived, all)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LearningResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/analysis/analyze": {
+            "post": {
+                "tags": [
+                    "analysis"
+                ],
+                "summary": "Analyze Content",
+                "description": "Analyze content from URL or text input using LLM",
+                "operationId": "analyze_content_analysis_analyze_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/app__analysis__models__AnalyzeRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnalysisResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/analysis/list": {
+            "get": {
+                "tags": [
+                    "analysis"
+                ],
+                "summary": "List Analyses",
+                "description": "List all saved analysis results",
+                "operationId": "list_analyses_analysis_list_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnalysisListResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/analysis/file/{analysis_id}": {
+            "get": {
+                "tags": [
+                    "analysis"
+                ],
+                "summary": "Get Analysis File",
+                "description": "Get analysis file content by ID",
+                "operationId": "get_analysis_file_analysis_file__analysis_id__get",
+                "parameters": [
+                    {
+                        "name": "analysis_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Analysis Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "analysis"
+                ],
+                "summary": "Delete Analysis File",
+                "description": "Delete analysis file by ID",
+                "operationId": "delete_analysis_file_analysis_file__analysis_id__delete",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "analysis_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Analysis Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/analysis/types": {
+            "get": {
+                "tags": [
+                    "analysis"
+                ],
+                "summary": "Get Analysis Types",
+                "description": "Get available analysis types",
+                "operationId": "get_analysis_types_analysis_types_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/llm/process": {
+            "post": {
+                "tags": [
+                    "llm"
+                ],
+                "summary": "Process With Llm",
+                "description": "Unified LLM processing endpoint that can handle various prompts and input sources",
+                "operationId": "process_with_llm_llm_process_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LLMRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LLMResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/llm/prompts": {
+            "get": {
+                "tags": [
+                    "llm"
+                ],
+                "summary": "Get Prompts",
+                "description": "Get list of available named prompts",
+                "operationId": "get_prompts_llm_prompts_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PromptsResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/llm/list": {
+            "get": {
+                "tags": [
+                    "llm"
+                ],
+                "summary": "List Results",
+                "description": "List all saved LLM results",
+                "operationId": "list_results_llm_list_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LLMListResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/llm/file/{result_id}": {
+            "get": {
+                "tags": [
+                    "llm"
+                ],
+                "summary": "Get Result File",
+                "description": "Get LLM result file content by ID",
+                "operationId": "get_result_file_llm_file__result_id__get",
+                "parameters": [
+                    {
+                        "name": "result_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Result Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "llm"
+                ],
+                "summary": "Delete Result File",
+                "description": "Delete LLM result file by ID",
+                "operationId": "delete_result_file_llm_file__result_id__delete",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "result_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Result Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/llm/extract": {
+            "post": {
+                "tags": [
+                    "llm"
+                ],
+                "summary": "Extract Learning",
+                "description": "Convenience endpoint for learning extraction (equivalent to learning/scrape)",
+                "operationId": "extract_learning_llm_extract_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ExtractRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LLMResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/llm/analyze": {
+            "post": {
+                "tags": [
+                    "llm"
+                ],
+                "summary": "Analyze Content",
+                "description": "Convenience endpoint for content analysis (equivalent to analysis/analyze)",
+                "operationId": "analyze_content_llm_analyze_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/app__llm__models__AnalyzeRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LLMResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/llm/custom": {
+            "post": {
+                "tags": [
+                    "llm"
+                ],
+                "summary": "Custom Processing",
+                "description": "Custom prompt processing endpoint",
+                "operationId": "custom_processing_llm_custom_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CustomRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LLMResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/getTest": {
+            "get": {
+                "summary": "Get Test",
+                "description": "Read data from a file",
+                "operationId": "get_test_getTest_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/setTest": {
+            "post": {
+                "summary": "Set Test",
+                "description": "Write data to a file",
+                "operationId": "set_test_setTest_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TestData"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AnalysisListItem": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "title": {
+                        "type": "string",
+                        "title": "Title"
+                    },
+                    "analysis_type": {
+                        "$ref": "#/components/schemas/AnalysisType"
+                    },
+                    "content_type": {
+                        "$ref": "#/components/schemas/ContentType"
+                    },
+                    "created": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created"
+                    },
+                    "source_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Source Url"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "title",
+                    "analysis_type",
+                    "content_type",
+                    "created"
+                ],
+                "title": "AnalysisListItem",
+                "description": "Summary item for analysis list responses"
+            },
+            "AnalysisListResponse": {
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "data": {
+                        "items": {
+                            "$ref": "#/components/schemas/AnalysisListItem"
+                        },
+                        "type": "array",
+                        "title": "Data"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "status",
+                    "message",
+                    "data"
+                ],
+                "title": "AnalysisListResponse",
+                "description": "Response model for analysis list endpoint"
+            },
+            "AnalysisResponse": {
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "title": "Status",
+                        "description": "Response status"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message",
+                        "description": "Response message"
+                    },
+                    "data": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": true,
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Data",
+                        "description": "Analysis result data"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "status",
+                    "message"
+                ],
+                "title": "AnalysisResponse",
+                "description": "Standard response model for analysis operations"
+            },
+            "AnalysisType": {
+                "type": "string",
+                "enum": [
+                    "summary",
+                    "extraction",
+                    "classification",
+                    "sentiment",
+                    "keywords",
+                    "custom"
+                ],
+                "title": "AnalysisType",
+                "description": "Types of analysis that can be performed"
+            },
+            "ContentType": {
+                "type": "string",
+                "enum": [
+                    "webpage",
+                    "youtube",
+                    "text",
+                    "document"
+                ],
+                "title": "ContentType",
+                "description": "Type of content being analyzed"
+            },
+            "CustomRequest": {
+                "properties": {
+                    "custom_prompt": {
+                        "type": "string",
+                        "title": "Custom Prompt"
+                    },
+                    "query_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Query Url"
+                    },
+                    "query_text": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Query Text"
+                    },
+                    "model": {
+                        "type": "string",
+                        "title": "Model",
+                        "default": "gpt-4o"
+                    },
+                    "save_result": {
+                        "type": "boolean",
+                        "title": "Save Result",
+                        "default": false
+                    },
+                    "output_format": {
+                        "$ref": "#/components/schemas/OutputFormat",
+                        "default": "text"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "custom_prompt"
+                ],
+                "title": "CustomRequest",
+                "description": "Request model for custom processing endpoint"
+            },
+            "ExtractRequest": {
+                "properties": {
+                    "query_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Query Url"
+                    },
+                    "query_text": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Query Text"
+                    },
+                    "model": {
+                        "type": "string",
+                        "title": "Model",
+                        "default": "gpt-4o"
+                    },
+                    "save_result": {
+                        "type": "boolean",
+                        "title": "Save Result",
+                        "default": true
+                    }
+                },
+                "type": "object",
+                "title": "ExtractRequest",
+                "description": "Request model for extract convenience endpoint"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "HealthResponse": {
+                "properties": {
+                    "measurements": {
+                        "items": {
+                            "$ref": "#/components/schemas/Measurement"
+                        },
+                        "type": "array",
+                        "title": "Measurements"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Timestamp",
+                        "default": "2025-06-29T12:55:02.119773"
+                    },
+                    "timezone": {
+                        "type": "string",
+                        "title": "Timezone",
+                        "default": "UTC"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "measurements"
+                ],
+                "title": "HealthResponse",
+                "description": "All timestamps are in UTC"
+            },
+            "HealthSummaryResponse": {
+                "properties": {
+                    "period_type": {
+                        "type": "string",
+                        "title": "Period Type"
+                    },
+                    "summaries": {
+                        "items": {
+                            "$ref": "#/components/schemas/PeriodSummary"
+                        },
+                        "type": "array",
+                        "title": "Summaries"
+                    },
+                    "generated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Generated At",
+                        "default": "2025-06-29T12:55:02.122834"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "period_type",
+                    "summaries"
+                ],
+                "title": "HealthSummaryResponse",
+                "description": "Model representing a summary of health metrics over a specified period."
+            },
+            "LLMListItem": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "title": {
+                        "type": "string",
+                        "title": "Title"
+                    },
+                    "prompt_used": {
+                        "type": "string",
+                        "title": "Prompt Used"
+                    },
+                    "model_used": {
+                        "type": "string",
+                        "title": "Model Used"
+                    },
+                    "source_type": {
+                        "type": "string",
+                        "title": "Source Type"
+                    },
+                    "created": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created"
+                    },
+                    "source_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Source Url"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "title",
+                    "prompt_used",
+                    "model_used",
+                    "source_type",
+                    "created"
+                ],
+                "title": "LLMListItem",
+                "description": "Summary item for LLM result list responses"
+            },
+            "LLMListResponse": {
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "data": {
+                        "items": {
+                            "$ref": "#/components/schemas/LLMListItem"
+                        },
+                        "type": "array",
+                        "title": "Data"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "status",
+                    "message",
+                    "data"
+                ],
+                "title": "LLMListResponse",
+                "description": "Response model for LLM results list endpoint"
+            },
+            "LLMRequest": {
+                "properties": {
+                    "model": {
+                        "type": "string",
+                        "title": "Model",
+                        "description": "LLM model to use",
+                        "default": "gpt-4o"
+                    },
+                    "prompt": {
+                        "type": "string",
+                        "title": "Prompt",
+                        "description": "Named prompt (e.g., 'extract_learning', 'analyze_summary') or custom prompt text"
+                    },
+                    "query_text": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Query Text",
+                        "description": "Direct text input to process"
+                    },
+                    "query_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Query Url",
+                        "description": "URL to scrape and process"
+                    },
+                    "save_result": {
+                        "type": "boolean",
+                        "title": "Save Result",
+                        "description": "Whether to save result to file and return URL",
+                        "default": false
+                    },
+                    "output_format": {
+                        "$ref": "#/components/schemas/OutputFormat",
+                        "description": "Output format for the response",
+                        "default": "text"
+                    },
+                    "custom_title": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Custom Title",
+                        "description": "Custom title for saved results"
+                    },
+                    "metadata": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Metadata",
+                        "description": "Additional metadata for saved results"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "prompt"
+                ],
+                "title": "LLMRequest",
+                "description": "Request model for unified LLM endpoint",
+                "example": {
+                    "model": "gpt-4o",
+                    "output_format": "markdown",
+                    "prompt": "analyze_summary",
+                    "query_url": "https://example.com/article",
+                    "save_result": true
+                }
+            },
+            "LLMResponse": {
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "title": "Status",
+                        "description": "Response status (success/error)"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message",
+                        "description": "Response message"
+                    },
+                    "data": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": true,
+                                "type": "object"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Data",
+                        "description": "Result data - either LLMResult dict, URL string, or direct content"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "status",
+                    "message"
+                ],
+                "title": "LLMResponse",
+                "description": "Standard response model for LLM operations"
+            },
+            "LearningItemRequest": {
+                "properties": {
+                    "url": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 2083,
+                                "minLength": 1,
+                                "format": "uri"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Url"
+                    },
+                    "text": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Text"
+                    }
+                },
+                "type": "object",
+                "title": "LearningItemRequest",
+                "description": "Request model for creating a learning item from a URL."
+            },
+            "LearningResponse": {
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "data": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": true,
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Data"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "status",
+                    "message"
+                ],
+                "title": "LearningResponse",
+                "description": "Response model for learning API endpoints."
+            },
+            "Measurement": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Date"
+                    },
+                    "type": {
+                        "type": "integer",
+                        "title": "Type"
+                    },
+                    "value": {
+                        "type": "number",
+                        "title": "Value"
+                    },
+                    "measure_name": {
+                        "type": "string",
+                        "title": "Measure Name"
+                    },
+                    "display_unit": {
+                        "type": "string",
+                        "title": "Display Unit"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "date",
+                    "type",
+                    "value",
+                    "measure_name",
+                    "display_unit"
+                ],
+                "title": "Measurement",
+                "description": "Health measurement data point. All timestamps are in UTC"
+            },
+            "MetricValue": {
+                "properties": {
+                    "avg": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Avg"
+                    },
+                    "min": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Min"
+                    },
+                    "max": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Max"
+                    },
+                    "unit": {
+                        "type": "string",
+                        "title": "Unit"
+                    },
+                    "sample_count": {
+                        "type": "integer",
+                        "title": "Sample Count"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "avg",
+                    "min",
+                    "max",
+                    "unit",
+                    "sample_count"
+                ],
+                "title": "MetricValue",
+                "description": "Model representing a metric value."
+            },
+            "OutputFormat": {
+                "type": "string",
+                "enum": [
+                    "markdown",
+                    "json",
+                    "text"
+                ],
+                "title": "OutputFormat",
+                "description": "Output format options for LLM responses"
+            },
+            "PeriodSummary": {
+                "properties": {
+                    "period_start": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Period Start"
+                    },
+                    "period_end": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Period End"
+                    },
+                    "metrics": {
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/MetricValue"
+                        },
+                        "type": "object",
+                        "title": "Metrics"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "period_start",
+                    "period_end",
+                    "metrics"
+                ],
+                "title": "PeriodSummary",
+                "description": "Model representing a summary of health metrics for a specific period."
+            },
+            "PromptInfo": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "title": "Name",
+                        "description": "Prompt identifier"
+                    },
+                    "description": {
+                        "type": "string",
+                        "title": "Description",
+                        "description": "Description of what the prompt does"
+                    },
+                    "category": {
+                        "type": "string",
+                        "title": "Category",
+                        "description": "Category of the prompt (analysis, learning, etc.)"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "description",
+                    "category"
+                ],
+                "title": "PromptInfo",
+                "description": "Information about available prompts"
+            },
+            "PromptsResponse": {
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "data": {
+                        "items": {
+                            "$ref": "#/components/schemas/PromptInfo"
+                        },
+                        "type": "array",
+                        "title": "Data"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "status",
+                    "message",
+                    "data"
+                ],
+                "title": "PromptsResponse",
+                "description": "Response model for available prompts endpoint"
+            },
+            "RowingExtractRequest": {
+                "properties": {
+                    "image_url": {
+                        "type": "string",
+                        "maxLength": 2083,
+                        "minLength": 1,
+                        "format": "uri",
+                        "title": "Image Url"
+                    },
+                    "workout_date": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Workout Date"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "image_url"
+                ],
+                "title": "RowingExtractRequest",
+                "description": "Request model for the rowing workout image extraction endpoint.\n\nAttributes:\n    image_url: URL of the rowing machine workout screenshot to process\n    workout_date: Optional timestamp when the workout was performed.\n                 If not provided, the current date will be used."
+            },
+            "RowingResponse": {
+                "properties": {
+                    "workouts": {
+                        "items": {
+                            "$ref": "#/components/schemas/RowingWorkout"
+                        },
+                        "type": "array",
+                        "title": "Workouts"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Timestamp",
+                        "default": "2025-06-29T12:55:02.124733"
+                    },
+                    "timezone": {
+                        "type": "string",
+                        "title": "Timezone",
+                        "default": "UTC"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "workouts"
+                ],
+                "title": "RowingResponse",
+                "description": "Response model for the rowing workout retrieval endpoint.\nIncludes a list of workouts and metadata about the response.\n\nAttributes:\n    workouts: List of rowing workout records matching the query parameters\n    timestamp: UTC timestamp when the response was generated\n    timezone: Timezone identifier for the timestamps in the response (always \"UTC\")\n\nExample:\n    {\n        \"workouts\": [\n            {\n                \"id\": 1,\n                \"date\": \"2023-10-15T08:30:00\",\n                \"workout_type\": \"distance\",\n                \"duration_seconds\": 1800.5,\n                \"distance_meters\": 5000.0,\n                \"avg_split\": 120.0\n            }\n        ],\n        \"timestamp\": \"2023-10-16T14:22:10.123456\",\n        \"timezone\": \"UTC\"\n    }"
+            },
+            "RowingWorkout": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Date"
+                    },
+                    "workout_type": {
+                        "type": "string",
+                        "title": "Workout Type"
+                    },
+                    "duration_seconds": {
+                        "type": "number",
+                        "title": "Duration Seconds"
+                    },
+                    "distance_meters": {
+                        "type": "number",
+                        "title": "Distance Meters"
+                    },
+                    "avg_split": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Avg Split"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "date",
+                    "workout_type",
+                    "duration_seconds",
+                    "distance_meters"
+                ],
+                "title": "RowingWorkout",
+                "description": "Model representing a rowing workout stored in the database.\nIncludes all rowing metrics plus metadata like ID and timestamp.\n\nAttributes:\n    id: Unique identifier for the workout record\n    date: Timestamp when the workout was performed (UTC)\n    workout_type: Type of workout - \"distance\" or \"interval\"\n    duration_seconds: Total duration of the workout in seconds\n    distance_meters: Total distance rowed in meters\n    avg_split: Average split time in seconds per 500m (may be null for interval workouts)"
+            },
+            "StatMeasurement": {
+                "properties": {
+                    "type": {
+                        "type": "integer",
+                        "title": "Type"
+                    },
+                    "measure_name": {
+                        "type": "string",
+                        "title": "Measure Name"
+                    },
+                    "avg_value": {
+                        "type": "number",
+                        "title": "Avg Value"
+                    },
+                    "min_value": {
+                        "type": "number",
+                        "title": "Min Value"
+                    },
+                    "max_value": {
+                        "type": "number",
+                        "title": "Max Value"
+                    },
+                    "display_unit": {
+                        "type": "string",
+                        "title": "Display Unit"
+                    },
+                    "reading_count": {
+                        "type": "integer",
+                        "title": "Reading Count"
+                    },
+                    "classification": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Classification"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "type",
+                    "measure_name",
+                    "avg_value",
+                    "min_value",
+                    "max_value",
+                    "display_unit",
+                    "reading_count"
+                ],
+                "title": "StatMeasurement",
+                "description": "Model representing a statistical measurement."
+            },
+            "StatsResponse": {
+                "properties": {
+                    "stats": {
+                        "items": {
+                            "$ref": "#/components/schemas/StatMeasurement"
+                        },
+                        "type": "array",
+                        "title": "Stats"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Timestamp",
+                        "default": "2025-06-29T12:55:02.120551"
+                    },
+                    "timezone": {
+                        "type": "string",
+                        "title": "Timezone",
+                        "default": "UTC"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "stats"
+                ],
+                "title": "StatsResponse",
+                "description": "All timestamps are in UTC"
+            },
+            "TestData": {
+                "properties": {
+                    "content": {
+                        "type": "string",
+                        "title": "Content"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "content"
+                ],
+                "title": "TestData",
+                "description": "Data model for writing to a file"
+            },
+            "TrendMeasurement": {
+                "properties": {
+                    "period": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Period"
+                    },
+                    "type": {
+                        "type": "integer",
+                        "title": "Type"
+                    },
+                    "measure_name": {
+                        "type": "string",
+                        "title": "Measure Name"
+                    },
+                    "avg_value": {
+                        "type": "number",
+                        "title": "Avg Value"
+                    },
+                    "min_value": {
+                        "type": "number",
+                        "title": "Min Value"
+                    },
+                    "max_value": {
+                        "type": "number",
+                        "title": "Max Value"
+                    },
+                    "display_unit": {
+                        "type": "string",
+                        "title": "Display Unit"
+                    },
+                    "reading_count": {
+                        "type": "integer",
+                        "title": "Reading Count"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "period",
+                    "type",
+                    "measure_name",
+                    "avg_value",
+                    "min_value",
+                    "max_value",
+                    "display_unit",
+                    "reading_count"
+                ],
+                "title": "TrendMeasurement",
+                "description": "Model representing a trend measurement."
+            },
+            "TrendResponse": {
+                "properties": {
+                    "trends": {
+                        "items": {
+                            "$ref": "#/components/schemas/TrendMeasurement"
+                        },
+                        "type": "array",
+                        "title": "Trends"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Timestamp",
+                        "default": "2025-06-29T12:55:02.120146"
+                    },
+                    "timezone": {
+                        "type": "string",
+                        "title": "Timezone",
+                        "default": "UTC"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "trends"
+                ],
+                "title": "TrendResponse",
+                "description": "All timestamps are in UTC"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            },
+            "app__analysis__models__AnalyzeRequest": {
+                "properties": {
+                    "url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Url",
+                        "description": "URL to analyze"
+                    },
+                    "text": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Text",
+                        "description": "Text content to analyze"
+                    },
+                    "analysis_type": {
+                        "$ref": "#/components/schemas/AnalysisType",
+                        "description": "Type of analysis to perform",
+                        "default": "summary"
+                    },
+                    "custom_prompt": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Custom Prompt",
+                        "description": "Custom prompt for analysis (when analysis_type is CUSTOM)"
+                    },
+                    "model_name": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Model Name",
+                        "description": "LLM model to use for analysis",
+                        "default": "gpt-4o"
+                    },
+                    "save_result": {
+                        "type": "boolean",
+                        "title": "Save Result",
+                        "description": "Whether to save the analysis result",
+                        "default": true
+                    }
+                },
+                "type": "object",
+                "title": "AnalyzeRequest",
+                "description": "Request model for analysis endpoint",
+                "example": {
+                    "analysis_type": "summary",
+                    "model_name": "gpt-4o",
+                    "save_result": true,
+                    "url": "https://example.com/article"
+                }
+            },
+            "app__llm__models__AnalyzeRequest": {
+                "properties": {
+                    "analysis_type": {
+                        "type": "string",
+                        "title": "Analysis Type",
+                        "default": "summary"
+                    },
+                    "query_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Query Url"
+                    },
+                    "query_text": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Query Text"
+                    },
+                    "model": {
+                        "type": "string",
+                        "title": "Model",
+                        "default": "gpt-4o"
+                    },
+                    "save_result": {
+                        "type": "boolean",
+                        "title": "Save Result",
+                        "default": true
+                    }
+                },
+                "type": "object",
+                "title": "AnalyzeRequest",
+                "description": "Request model for analyze convenience endpoint"
+            }
+        },
+        "securitySchemes": {
+            "APIKeyHeader": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "X-API-Key"
+            }
+        }
+    }
+}

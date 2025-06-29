@@ -1,0 +1,97 @@
+# Add this section to your config.yaml for analysis integration
+
+analysis:
+  id: 1388742428063694968
+  summarize:
+    cmd_prefix: "/summarize"
+    api_call:
+      url: "https://strangelooping.xyz/api/senechal/analysis/analyze"
+      args: {"url": "", "analysis_type": "summary", "save_result": true}
+      headers:
+        "Content-Type": "application/json"
+        "X-API-Key": "HandwritingRepair"
+  extract:
+    cmd_prefix: "/extract"
+    api_call:
+      url: "https://strangelooping.xyz/api/senechal/analysis/analyze"
+      args: {"url": "", "analysis_type": "extraction", "save_result": true}
+      headers:
+        "Content-Type": "application/json"
+        "X-API-Key": "HandwritingRepair"
+  classify:
+    cmd_prefix: "/classify"
+    api_call:
+      url: "https://strangelooping.xyz/api/senechal/analysis/analyze"
+      args: {"url": "", "analysis_type": "classification", "save_result": true}
+      headers:
+        "Content-Type": "application/json"
+        "X-API-Key": "HandwritingRepair"
+  sentiment:
+    cmd_prefix: "/sentiment"
+    api_call:
+      url: "https://strangelooping.xyz/api/senechal/analysis/analyze"
+      args: {"url": "", "analysis_type": "sentiment", "save_result": true}
+      headers:
+        "Content-Type": "application/json"
+        "X-API-Key": "HandwritingRepair"
+  keywords:
+    cmd_prefix: "/keywords"
+    api_call:
+      url: "https://strangelooping.xyz/api/senechal/analysis/analyze"
+      args: {"url": "", "analysis_type": "keywords", "save_result": true}
+      headers:
+        "Content-Type": "application/json"
+        "X-API-Key": "HandwritingRepair"
+  analyze_text:
+    cmd_prefix: "/analyze-text"
+    api_call:
+      url: "https://strangelooping.xyz/api/senechal/analysis/analyze"
+      args: {"text": "", "analysis_type": "summary", "save_result": true}
+      headers:
+        "Content-Type": "application/json"
+        "X-API-Key": "HandwritingRepair"
+  custom:
+    cmd_prefix: "/custom"
+    api_call:
+      url: "https://strangelooping.xyz/api/senechal/analysis/analyze"
+      args: {"url": "", "analysis_type": "custom", "custom_prompt": "", "save_result": true}
+      headers:
+        "Content-Type": "application/json"
+        "X-API-Key": "HandwritingRepair"
+  list:
+    cmd_prefix: "/list"
+    api_call:
+      url: "https://strangelooping.xyz/api/senechal/analysis/list"
+      args: {}
+      headers:
+        "Content-Type": "application/json"
+        "X-API-Key": "HandwritingRepair"
+  get:
+    cmd_prefix: "/get"
+    api_call:
+      url: "https://strangelooping.xyz/api/senechal/analysis/file"
+      args: {"analysis_id": ""}
+      headers:
+        "Content-Type": "application/json"
+        "X-API-Key": "HandwritingRepair"
+  types:
+    cmd_prefix: "/types"
+    api_call:
+      url: "https://strangelooping.xyz/api/senechal/analysis/types"
+      args: {}
+      headers:
+        "Content-Type": "application/json"
+        "X-API-Key": "HandwritingRepair"
+
+# Test environment version (if needed)
+analysis-test:
+  id: [test_channel_id_if_needed]
+  summarize:
+    cmd_prefix: "/summarize"
+    api_call:
+      url: "http://localhost:8000/analysis/analyze"
+      args: {"url": "", "analysis_type": "summary", "save_result": true}
+      headers:
+        "Content-Type": "application/json"
+        "X-API-Key": "HandwritingRepair"
+  # ... (same pattern for all other commands with localhost URLs)

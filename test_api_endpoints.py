@@ -168,6 +168,76 @@ def run_all_tests() -> None:
     test_endpoint("get", "/getTest")
     test_endpoint("post", "/setTest", body={"content": "test data"})
     
+    # Test unified LLM endpoints
+    print("\n----- Testing unified LLM endpoints -----")
+    
+    # Test GET /llm/prompts
+    test_endpoint("get", "/llm/prompts")
+    
+    # Test POST /llm/process - main processing endpoint
+    test_endpoint("post", "/llm/process", body={
+        "model": "gpt-4o",
+        "prompt": "analyze_summary",
+        "query_text": "This is a test article about AI and machine learning.",
+        "save_result": False,
+        "output_format": "text"
+    })
+    
+    # Test POST /llm/process with save_result=True
+    process_result = test_endpoint("post", "/llm/process", body={
+        "model": "gpt-4o", 
+        "prompt": "extract_learning",
+        "query_text": "Python is a powerful programming language with simple syntax.",
+        "save_result": True,
+        "output_format": "markdown"
+    })
+    
+    # Test POST /llm/extract - convenience endpoint
+    test_endpoint("post", "/llm/extract", body={
+        "query_text": "FastAPI is a modern web framework for Python.",
+        "model": "gpt-4o",
+        "save_result": True
+    })
+    
+    # Test POST /llm/analyze - convenience endpoint
+    test_endpoint("post", "/llm/analyze", body={
+        "analysis_type": "summary",
+        "query_text": "Machine learning is transforming industries.",
+        "model": "gpt-4o", 
+        "save_result": False
+    })
+    
+    # Test POST /llm/custom - custom prompt endpoint
+    test_endpoint("post", "/llm/custom", body={
+        "custom_prompt": "Translate this to French:",
+        "query_text": "Hello, how are you?",
+        "model": "gpt-4o",
+        "save_result": False,
+        "output_format": "text"
+    })
+    
+    # Test GET /llm/list
+    test_endpoint("get", "/llm/list")
+    
+    # Test backward compatibility with learning endpoints
+    print("\n----- Testing backward compatibility -----")
+    
+    # Test POST /learning/scrape
+    test_endpoint("post", "/learning/scrape", body={
+        "text": "React is a JavaScript library for building user interfaces."
+    })
+    
+    # Test POST /analysis/analyze
+    test_endpoint("post", "/analysis/analyze", body={
+        "text": "Artificial intelligence is revolutionizing technology.",
+        "analysis_type": "summary",
+        "model_name": "gpt-4o",
+        "save_result": False
+    })
+    
+    # Test GET /analysis/types
+    test_endpoint("get", "/analysis/types")
+    
     # Print summary
     print(f"\n{'=' * 50}")
     print(f"Test Summary:")
@@ -184,16 +254,20 @@ def run_all_tests() -> None:
     
     print(f"{'=' * 50}\n")
     
-    # Exit with proper code based on only the summary endpoints
-    # This ensures we consider the test successful if all summary endpoints pass
-    summary_success = True
+    # Exit with proper code based on critical endpoints
+    # This ensures we consider the test successful if key endpoints pass
+    critical_endpoints = ["/health/summary/", "/llm/prompts", "/llm/process"]
+    critical_success = True
+    
     for error in results["errors"]:
-        if "/health/summary/" in error["endpoint"]:
-            summary_success = False
+        # Check if any critical endpoint failed
+        if any(critical in error["endpoint"] for critical in critical_endpoints):
+            critical_success = False
             break
     
-    print(f"Summary endpoint tests: {'Passed' if summary_success else 'Failed'}")
-    sys.exit(0 if summary_success else 1)
+    print(f"Critical endpoint tests: {'Passed' if critical_success else 'Failed'}")
+    print(f"Overall test success rate: {results['passed']}/{results['total']} ({(results['passed']/results['total']*100):.1f}%)")
+    sys.exit(0 if critical_success else 1)
 
 if __name__ == "__main__":
     run_all_tests()

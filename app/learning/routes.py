@@ -14,7 +14,11 @@ from pathlib import Path
 
 from app.learning.utils import (get_content_path, parse_frontmatter,
                                 save_learning_content, scrape_url)
-from app.llm.llm_services import extract_knowledge
+from app.llm.llm_services import (
+    process_input_content, perform_llm_processing, get_prompt_by_name,
+    generate_llm_id, save_llm_result
+)
+from app.llm.models import OutputFormat
 
 # Get logger
 logger = logging.getLogger("api")
@@ -38,44 +42,61 @@ async def scrape(request: LearningItemRequest):
     """
     logger.info(f"Received URL processing request: {request.url}")
 
-    scraped_result = scrape_url(request.url)
-    if scraped_result is None:
+    try:
+        # Use unified LLM service for processing
+        raw_content, title, source_type, source_url = process_input_content(
+            query_url=str(request.url) if request.url else None,
+            query_text=request.text
+        )
+        
+        if not raw_content.strip():
+            return LearningResponse(
+                status="error",
+                message="No content found to process"
+            )
+        
+        # Get the learning extraction prompt
+        prompt = get_prompt_by_name("extract_learning")
+        
+        # Perform LLM processing
+        logger.info(f"Processing content with unified LLM service")
+        processed_content = perform_llm_processing(
+            content=raw_content,
+            prompt=prompt,
+            model_name="gpt-4o",
+            output_format=OutputFormat.MARKDOWN
+        )
+        
+        # Generate ID and save using unified LLM service
+        result_id = generate_llm_id()
+        save_llm_result(
+            result_id=result_id,
+            title=title,
+            prompt_used="extract_learning",
+            model_used="gpt-4o",
+            source_type=source_type,
+            source_url=source_url,
+            content=processed_content,
+            raw_content=raw_content,
+            output_format=OutputFormat.MARKDOWN,
+            metadata={"legacy_endpoint": "learning_scrape"}
+        )
+        
+        # Create the URL pointing to LLM service
+        new_url = f"{SENECHAL_API_URL}/llm/file/{result_id}"
+        
+        return LearningResponse(
+            status="success",
+            message=f"Knowledge extracted using unified LLM service.",
+            data={"url": new_url}
+        )
+        
+    except Exception as e:
+        logger.error(f"Learning processing failed: {str(e)}")
         return LearningResponse(
             status="error",
-            message="Failed to scrape the URL"
+            message=f"Failed to process content: {str(e)}"
         )
-    
-    # Extract metadata from scraped result
-    content = scraped_result.get('content', '')
-    title = scraped_result.get('title')
-    channel_name = scraped_result.get('channel_name')
-    content_type = scraped_result.get('content_type', 'webpage')
-    url_str = str(request.url)
-    
-    logger.info(f"Scraped content: {content[:2000]}")
-    knowledge = extract_knowledge(content, model_name="gpt-4o")
-    logger.info(f"Knowledge extracted: {knowledge[:2000]}")
-    
-    # Use YouTube title if available, otherwise use URL
-    final_title = title if title else url_str
-    
-    id = save_learning_content(
-        title=final_title,
-        content=knowledge,
-        source_url=url_str,
-        content_type=content_type,
-        raw_content=content,
-        channel_name=channel_name
-    )
-
-    ##create the new url
-    new_url = f"{SENECHAL_API_URL}/learning/file/{id}"
-    
-    return LearningResponse(
-        status="success",
-        message=f"Knowledge extracted.",
-        data={"url": new_url}
-    )
 
 
 @router.post(
