@@ -73,24 +73,10 @@ async def analyze_content(request: AnalyzeRequest):
             from app.config import SENECHAL_API_URL
             analysis_url = f"{SENECHAL_API_URL}/analysis/file/{analysis_id}"
             
-            # Create a complete AnalysisResult object for the response
-            result = AnalysisResult(
-                id=analysis_id,
-                title=title,
-                analysis_type=request.analysis_type,
-                content_type=content_type,
-                source_url=source_url,
-                analysis_content=analysis_content,
-                raw_content=raw_content,
-                model_used=request.model_name,
-                created=datetime.now(timezone.utc),
-                metadata={"url": analysis_url}
-            )
-            
             return AnalysisResponse(
                 status="success",
                 message=f"Analysis completed using {request.analysis_type} method and saved",
-                data=result
+                data={"url": analysis_url}
             )
         
         # Create response with full content when not saving

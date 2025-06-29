@@ -60,7 +60,7 @@ class AnalysisResponse(BaseModel):
     """Standard response model for analysis operations"""
     status: str = Field(..., description="Response status")
     message: str = Field(..., description="Response message")
-    data: Optional[AnalysisResult] = Field(None, description="Analysis result data")
+    data: Optional[Dict[str, Any]] = Field(None, description="Analysis result data")
 
 
 class AnalysisListItem(BaseModel):
