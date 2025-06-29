@@ -68,8 +68,18 @@ async def analyze_content(request: AnalyzeRequest):
                 raw_content=raw_content,
                 model_used=request.model_name
             )
+            
+            # Return URL like learning endpoint when saving
+            from app.config import SENECHAL_API_URL
+            analysis_url = f"{SENECHAL_API_URL}/analysis/file/{analysis_id}"
+            
+            return AnalysisResponse(
+                status="success",
+                message=f"Analysis completed using {request.analysis_type} method and saved",
+                data={"url": analysis_url}
+            )
         
-        # Create response
+        # Create response with full content when not saving
         result = AnalysisResult(
             id=analysis_id,
             title=title,
