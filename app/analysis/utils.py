@@ -5,19 +5,19 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, Tuple, Optional
 
-from app.config import get_config
+from app.config import LEARNING_CONTENT_PATH
 from app.learning.utils import scrape_url
 from app.llm.llm_services import load_prompt
 from app.analysis.models import AnalysisType, ContentType, AnalysisMetadata
 
 import llm
 
-config = get_config()
-
 
 def get_analysis_content_dir() -> Path:
     """Get the directory for storing analysis content"""
-    content_dir = Path(config.CONTENT_DIR) / "analysis_content"
+    # Use the same parent directory as learning content
+    base_dir = Path(LEARNING_CONTENT_PATH).parent if LEARNING_CONTENT_PATH else Path(".")
+    content_dir = base_dir / "analysis_content"
     content_dir.mkdir(exist_ok=True)
     return content_dir
 
