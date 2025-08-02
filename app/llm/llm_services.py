@@ -553,9 +553,11 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
 </head>
 <body>
     <div class="theme-selector">
-        <select id="theme-select">
-            {theme_options}
-        </select>
+        <form method="get">
+            <select name="theme" onchange="this.form.submit()">
+                {theme_options}
+            </select>
+        </form>
     </div>
     
     <div class="markdown-container">
@@ -565,7 +567,6 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
         </div>
     </div>
     
-    <script src="/api/senechal/static/js/theme-switcher.js"></script>
 </body>
 </html>"""
     
