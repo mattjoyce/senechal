@@ -3,6 +3,7 @@ import logging
 import time
 
 from fastapi import Depends, FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -64,6 +65,9 @@ app = FastAPI()
 
 # Add request logging middleware
 app.add_middleware(RequestLoggingMiddleware)
+
+# Mount static files directory
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Include the health router
 app.include_router(health_router)
