@@ -550,33 +550,6 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title}</title>
     <link rel="stylesheet" id="theme-css" href="/api/senechal/static/themes/css/{theme}.css">
-    <style>
-        /* Base styles for theme selector and metadata */
-        body {{
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-        }}
-        
-        .theme-selector {{
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 5px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }}
-        
-        
-        /* Container for markdown content */
-        .markdown-container {{
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 2rem;
-        }}
-    </style>
 </head>
 <body>
     <div class="theme-selector">
@@ -587,7 +560,6 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
     
     <div class="markdown-container">
         <div class="markdown-body">
-            <h1>{title}</h1>
             <pre><code class="language-yaml">{frontmatter_yaml}</code></pre>
             {html_content}
         </div>

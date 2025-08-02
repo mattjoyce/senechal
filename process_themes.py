@@ -10,6 +10,30 @@ DEST_DIR.mkdir(parents=True, exist_ok=True)
 BASE_TEMPLATE = """
 /* Simple CSS theme based on Obsidian: {theme_name} ({mode}) */
 
+body {{
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: {background};
+}}
+
+.theme-selector {{
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid {text_faint};
+}}
+
+.markdown-container {{
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}}
+
 .markdown-body {{
   background-color: {background};
   color: {text};
