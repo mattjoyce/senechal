@@ -546,7 +546,7 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title}</title>
-    <link rel="stylesheet" id="theme-css" href="{SENECHAL_API_URL.rstrip('/')}/static/themes/css/{theme}.css">
+    <link rel="stylesheet" id="theme-css" href="/static/themes/css/{theme}.css">
     <style>
         /* Base styles for theme selector and metadata */
         body {{
@@ -622,7 +622,7 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
     
     <script>
         function switchTheme(theme) {{
-            document.getElementById('theme-css').href = `{SENECHAL_API_URL.rstrip('/')}/static/themes/css/${{theme}}.css`;
+            document.getElementById('theme-css').href = `/static/themes/css/${{theme}}.css`;
             // Save theme preference
             const url = new URL(window.location);
             url.searchParams.set('theme', theme);
