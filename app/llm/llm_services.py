@@ -539,6 +539,9 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
     else:
         source_info = source
     
+    # Generate YAML frontmatter for display
+    frontmatter_yaml = yaml.dump(metadata, default_flow_style=False).strip()
+    
     # Generate complete HTML page with linked CSS
     html_template = f"""<!DOCTYPE html>
 <html lang="en">
@@ -611,7 +614,7 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
     
     <div class="metadata">
         <h1>{title}</h1>
-        <p><strong>Model:</strong> {model} | <strong>Created:</strong> {created_str} | <strong>Source:</strong> {source_info}</p>
+        <pre><code class="language-yaml">{frontmatter_yaml}</code></pre>
     </div>
     
     <div class="markdown-container">
@@ -622,13 +625,10 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
     
     <script>
         function switchTheme(theme) {{
-            document.getElementById('theme-css').href = `/api/senechal/static/themes/css/${{theme}}.css`;
-            // Save theme preference
+            // Reload page with new theme parameter
             const url = new URL(window.location);
             url.searchParams.set('theme', theme);
-            fetch(url.toString().replace('/view/', '/view/'), {{
-                method: 'HEAD'
-            }});
+            window.location.href = url.toString();
         }}
     </script>
 </body>
