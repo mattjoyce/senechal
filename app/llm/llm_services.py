@@ -569,33 +569,6 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
             border: 1px solid #ccc;
         }}
         
-        .metadata {{
-            background: var(--background-secondary, #f5f5f5);
-            border-bottom: 1px solid var(--background-modifier-border, #e1e4e8);
-            padding: 1rem 2rem;
-            margin-bottom: 0;
-        }}
-        
-        .metadata h1 {{
-            margin: 0 0 0.5rem 0;
-            color: var(--text-title-h1, #1f2328);
-            font-size: 1.8rem;
-        }}
-        
-        .metadata p {{
-            margin: 0;
-            color: var(--text-muted, #656d76);
-            font-size: 0.9rem;
-        }}
-        
-        .metadata a {{
-            color: var(--text-accent, #0969da);
-            text-decoration: none;
-        }}
-        
-        .metadata a:hover {{
-            text-decoration: underline;
-        }}
         
         /* Container for markdown content */
         .markdown-container {{
@@ -612,13 +585,10 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
         </select>
     </div>
     
-    <div class="metadata">
-        <h1>{title}</h1>
-        <pre><code class="language-yaml">{frontmatter_yaml}</code></pre>
-    </div>
-    
     <div class="markdown-container">
         <div class="markdown-body">
+            <h1>{title}</h1>
+            <pre><code class="language-yaml">{frontmatter_yaml}</code></pre>
             {html_content}
         </div>
     </div>
