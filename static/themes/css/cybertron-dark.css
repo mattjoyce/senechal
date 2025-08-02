@@ -1,39 +1,6 @@
 
 /* Generated from Obsidian theme: Cybertron (dark) */
 
-.markdown-body {
-  background: var(--background-primary);
-  color: var(--text-normal);
-  font-family: system-ui, sans-serif;
-  line-height: 1.6;
-  padding: 1rem;
-}
-
-.markdown-body h1, 
-.markdown-body h2, 
-.markdown-body h3 {
-  color: var(--accent);
-  margin-top: 1.5em;
-}
-
-.markdown-body pre,
-.markdown-body code {
-  background: var(--code-background, #1e1e2e);
-  font-family: monospace;
-  padding: 0.5em;
-  border-radius: 5px;
-  overflow-x: auto;
-}
-
-.markdown-body pre.frontmatter {
-  background: var(--background-secondary);
-  color: var(--text-faint);
-  font-family: monospace;
-  border-left: 3px solid var(--accent);
-  padding: 1em;
-  margin-bottom: 2em;
-}
-
 :root {
 --window-border: 1px solid var(--window-border-color); /* Thanks Damian K from the Prism theme! */
 --window-border-color: var(--background-secondary-alt);
@@ -104,3 +71,37 @@
 --ribbon-background-collapsed: rgb(20, 20, 20);
 --tag-color: rgb(252, 246, 1);
 }
+
+.markdown-body {
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-family: system-ui, sans-serif;
+  line-height: 1.6;
+  padding: 1rem;
+}
+
+.markdown-body h1, 
+.markdown-body h2, 
+.markdown-body h3 {
+  color: var(--accent);
+  margin-top: 1.5em;
+}
+
+.markdown-body pre,
+.markdown-body code {
+  background: var(--code-background, #1e1e2e);
+  font-family: monospace;
+  padding: 0.5em;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+.markdown-body pre.frontmatter {
+  background: var(--background-secondary);
+  color: var(--text-faint);
+  font-family: monospace;
+  border-left: 3px solid var(--accent);
+  padding: 1em;
+  margin-bottom: 2em;
+}
+

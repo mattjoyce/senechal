@@ -7,6 +7,10 @@ OUTPUT_DIR = './static/themes/css'
 BASE_TEMPLATE = '''
 /* Generated from Obsidian theme: {theme_name} */
 
+:root {{
+{variables}
+}}
+
 .markdown-body {{
   background: var(--background-primary);
   color: var(--text-normal);
@@ -40,9 +44,6 @@ BASE_TEMPLATE = '''
   margin-bottom: 2em;
 }}
 
-:root {{
-{variables}
-}}
 '''
 
 def extract_root_variables(css_text):

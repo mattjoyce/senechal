@@ -1,6 +1,10 @@
 
 /* Generated from Obsidian theme: Faded (dark) */
 
+:root {
+--Minimum-Page-Width: 700px;
+}
+
 .markdown-body {
   background: var(--background-primary);
   color: var(--text-normal);
@@ -34,6 +38,3 @@
   margin-bottom: 2em;
 }
 
-:root {
---Minimum-Page-Width: 700px;
-}

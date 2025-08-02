@@ -1,6 +1,37 @@
 
 /* Generated from Obsidian theme: Firefly (light) */
 
+:root {
+--color-primary-100: #959ab9;
+--color-primary-200: #ffffff;
+--color-primary-300: #ffffff;
+--color-primary-400: #ffffff;
+--color-primary-500: #ffffff;
+--color-primary-600: #ffffff;
+--color-primary-700: #ffffff;
+--color-primary-800: #ffffff;
+--color-primary-900: #f0f1f5;
+--color-primary-1000: #f0f1f5;
+--color-primary-1100: #f0f1f5;
+--color-title-h1: #ff4683;
+--color-title-h2: #598bf7;
+--color-title-h3: #48e484;
+--color-title-h4: #fb49ae;
+--color-title-h5: #63b9ff;
+--color-title-h6: #b4da54;
+--color-element-icon: #1f212f;
+--color-element-border: #ffffff;
+--color-element-border-light: #ffffff;
+--color-effect-textGlow: #ff0040;
+--color-text-strong: #ff0040;
+--color-text-code: #6be399;
+--color-text-paragraph: #1f212f;
+--color-text-quote: #484e6d;
+--color-text-link: #2633ab;
+--color-text-linkUrl: #2633ab;
+--color-text-hash-tag: #5d648c;
+}
+
 .markdown-body {
   background: var(--background-primary);
   color: var(--text-normal);
@@ -34,33 +65,3 @@
   margin-bottom: 2em;
 }
 
-:root {
---color-primary-100: #959ab9;
---color-primary-200: #ffffff;
---color-primary-300: #ffffff;
---color-primary-400: #ffffff;
---color-primary-500: #ffffff;
---color-primary-600: #ffffff;
---color-primary-700: #ffffff;
---color-primary-800: #ffffff;
---color-primary-900: #f0f1f5;
---color-primary-1000: #f0f1f5;
---color-primary-1100: #f0f1f5;
---color-title-h1: #ff4683;
---color-title-h2: #598bf7;
---color-title-h3: #48e484;
---color-title-h4: #fb49ae;
---color-title-h5: #63b9ff;
---color-title-h6: #b4da54;
---color-element-icon: #1f212f;
---color-element-border: #ffffff;
---color-element-border-light: #ffffff;
---color-effect-textGlow: #ff0040;
---color-text-strong: #ff0040;
---color-text-code: #6be399;
---color-text-paragraph: #1f212f;
---color-text-quote: #484e6d;
---color-text-link: #2633ab;
---color-text-linkUrl: #2633ab;
---color-text-hash-tag: #5d648c;
-}

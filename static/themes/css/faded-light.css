@@ -1,39 +1,6 @@
 
 /* Generated from Obsidian theme: Faded (light) */
 
-.markdown-body {
-  background: var(--background-primary);
-  color: var(--text-normal);
-  font-family: system-ui, sans-serif;
-  line-height: 1.6;
-  padding: 1rem;
-}
-
-.markdown-body h1, 
-.markdown-body h2, 
-.markdown-body h3 {
-  color: var(--accent);
-  margin-top: 1.5em;
-}
-
-.markdown-body pre,
-.markdown-body code {
-  background: var(--code-background, #1e1e2e);
-  font-family: monospace;
-  padding: 0.5em;
-  border-radius: 5px;
-  overflow-x: auto;
-}
-
-.markdown-body pre.frontmatter {
-  background: var(--background-secondary);
-  color: var(--text-faint);
-  font-family: monospace;
-  border-left: 3px solid var(--accent);
-  padding: 1em;
-  margin-bottom: 2em;
-}
-
 :root {
 --highlight-mix-blend-mode: darken;
 --mono-rgb-0: 255, 255, 255;
@@ -222,3 +189,37 @@
 --custom-active-page-shadow: inset 0px 0px 15px 8px var(--zinc-500);
 --divider-color: var(--custom-white-2-400);
 }
+
+.markdown-body {
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-family: system-ui, sans-serif;
+  line-height: 1.6;
+  padding: 1rem;
+}
+
+.markdown-body h1, 
+.markdown-body h2, 
+.markdown-body h3 {
+  color: var(--accent);
+  margin-top: 1.5em;
+}
+
+.markdown-body pre,
+.markdown-body code {
+  background: var(--code-background, #1e1e2e);
+  font-family: monospace;
+  padding: 0.5em;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+.markdown-body pre.frontmatter {
+  background: var(--background-secondary);
+  color: var(--text-faint);
+  font-family: monospace;
+  border-left: 3px solid var(--accent);
+  padding: 1em;
+  margin-bottom: 2em;
+}
+
