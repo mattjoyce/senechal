@@ -507,9 +507,6 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
     md = markdown.Markdown(extensions=['codehilite', 'fenced_code', 'tables'])
     html_content = md.convert(content)
     
-    # Load theme CSS
-    css_content = load_theme_css(theme_name)
-    
     # Get available themes for selector
     available_themes = get_available_themes()
     
@@ -542,13 +539,14 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
     else:
         source_info = source
     
-    # Generate complete HTML page
+    # Generate complete HTML page with linked CSS
     html_template = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title}</title>
+    <link id="theme-css" rel="stylesheet" href="/static/themes/css/{theme_name}.css">
     <style>
         /* Base styles for theme selector and metadata */
         body {{
@@ -602,8 +600,6 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
             margin: 0 auto;
             padding: 2rem;
         }}
-        
-{css_content}
     </style>
 </head>
 <body>
@@ -626,9 +622,13 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
     
     <script>
         function switchTheme(theme) {{
+            document.getElementById('theme-css').href = `/static/themes/css/${{theme}}.css`;
+            // Save theme preference
             const url = new URL(window.location);
             url.searchParams.set('theme', theme);
-            window.location.href = url.toString();
+            fetch(url.toString().replace('/view/', '/view/'), {{
+                method: 'HEAD'
+            }});
         }}
     </script>
 </body>
