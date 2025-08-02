@@ -546,7 +546,7 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title}</title>
-    <link id="theme-css" rel="stylesheet" href="/static/themes/css/{theme_name}.css">
+    <link rel="stylesheet" href="/static/themes/css/{theme}.css">
     <style>
         /* Base styles for theme selector and metadata */
         body {{

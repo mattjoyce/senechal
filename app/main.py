@@ -67,7 +67,7 @@ app = FastAPI()
 app.add_middleware(RequestLoggingMiddleware)
 
 # Mount static files directory
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/api/senechal/static", StaticFiles(directory="static"), name="senechal-static")
 
 # Include the health router
 app.include_router(health_router)
