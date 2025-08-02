@@ -410,7 +410,7 @@ def list_llm_results() -> list:
 
 def get_themes_dir() -> Path:
     """Get the directory for CSS themes"""
-    themes_dir = Path(__file__).parent.parent / "themes" / "css"
+    themes_dir = Path(__file__).parent.parent.parent / "static" / "themes" / "css"
     themes_dir.mkdir(parents=True, exist_ok=True)
     return themes_dir
 
