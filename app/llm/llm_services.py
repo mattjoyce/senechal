@@ -12,7 +12,7 @@ import llm
 import markdown
 
 from app.health.models import RowingData
-from app.config import LEARNING_CONTENT_PATH
+from app.config import LEARNING_CONTENT_PATH, MARKDOWN_THEME
 from app.learning.utils import scrape_url
 from app.llm.models import OutputFormat, LLMResult
 
@@ -501,74 +501,29 @@ def load_theme_css(theme_name: str) -> str:
 def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: str = None) -> str:
     """Convert markdown content to themed HTML page"""
     if theme_name is None:
-        theme_name = get_selected_theme()
+        theme_name = MARKDOWN_THEME
     
     # Convert markdown to HTML
     md = markdown.Markdown(extensions=['codehilite', 'fenced_code', 'tables'])
     html_content = md.convert(content)
     
-    # Get available themes for selector
-    available_themes = get_available_themes()
-    
-    # Build theme selector options
-    theme_options = ""
-    for theme in available_themes:
-        selected = 'selected' if theme == theme_name else ''
-        theme_options += f'<option value="{theme}" {selected}>{theme.title()}</option>'
-    
     # Extract metadata for display
     title = metadata.get('title', 'Untitled')
-    model = metadata.get('model_used', 'Unknown')
-    created = metadata.get('created', '')
-    source = metadata.get('source_type', 'Unknown')
-    source_url = metadata.get('source_url', '')
-    
-    # Format creation date
-    try:
-        if created:
-            dt = datetime.fromisoformat(created.replace('Z', '+00:00'))
-            created_str = dt.strftime('%Y-%m-%d %H:%M UTC')
-        else:
-            created_str = 'Unknown'
-    except:
-        created_str = str(created)
-    
-    # Build source info
-    if source == 'url' and source_url:
-        source_info = f'<a href="{source_url}" target="_blank">{source}</a>'
-    else:
-        source_info = source
     
     # Generate YAML frontmatter for display
     frontmatter_yaml = yaml.dump(metadata, default_flow_style=False).strip()
     
-    # Generate complete HTML page with linked CSS
-    html_template = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title}</title>
-    <link rel="stylesheet" id="theme-css" href="/api/senechal/static/themes/css/{theme_name}.css">
-</head>
-<body>
-    <div class="theme-selector">
-        <form method="get" action="">
-            <select name="theme">
-                {theme_options}
-            </select>
-            <button type="submit">Apply</button>
-        </form>
-    </div>
+    # Load HTML template
+    template_path = Path(__file__).parent.parent / "themes" / "viewer-template.html"
+    with open(template_path, 'r', encoding='utf-8') as f:
+        template = f.read()
     
-    <div class="markdown-container">
-        <div class="markdown-body">
-            <pre><code class="language-yaml">{frontmatter_yaml}</code></pre>
-            {html_content}
-        </div>
-    </div>
+    # Replace template variables
+    html_page = template.format(
+        title=title,
+        theme_name=theme_name,
+        frontmatter_yaml=frontmatter_yaml,
+        html_content=html_content
+    )
     
-</body>
-</html>"""
-    
-    return html_template
+    return html_page

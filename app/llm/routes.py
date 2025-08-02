@@ -15,8 +15,7 @@ from app.llm.models import (
 from app.llm.llm_services import (
     get_available_prompts, get_prompt_by_name, process_input_content,
     perform_llm_processing, save_llm_result, generate_llm_id,
-    get_llm_file_content, list_llm_results, render_markdown_to_html,
-    get_available_themes, set_selected_theme, get_selected_theme
+    get_llm_file_content, list_llm_results, render_markdown_to_html
 )
 
 # Configure logging
@@ -241,32 +240,15 @@ async def delete_result_file(result_id: str):
 
 
 @router.get("/view/{result_id}", response_class=HTMLResponse)
-async def view_result(result_id: str, theme: Optional[str] = Query(None)):
+async def view_result(result_id: str):
     """
-    View LLM result as rendered HTML with theme support
+    View LLM result as rendered HTML with configured theme
     """
     try:
         metadata, content = get_llm_file_content(result_id)
         
-        # Use provided theme or fall back to stored selection
-        if theme:
-            logger.info(f"Theme parameter received: '{theme}'")
-            # Validate theme exists
-            available_themes = get_available_themes()
-            logger.info(f"Available themes: {available_themes}")
-            if theme not in available_themes:
-                raise HTTPException(status_code=400, detail=f"Theme '{theme}' not found. Available: {available_themes}")
-            
-            # Persist theme selection
-            set_selected_theme(theme)
-            theme_name = theme
-            logger.info(f"Using theme: '{theme_name}'")
-        else:
-            theme_name = get_selected_theme()
-            logger.info(f"No theme param, using stored theme: '{theme_name}'")
-        
-        # Render markdown to HTML
-        html_content = render_markdown_to_html(content, metadata, theme_name)
+        # Render markdown to HTML with configured theme
+        html_content = render_markdown_to_html(content, metadata)
         
         return HTMLResponse(content=html_content)
         
