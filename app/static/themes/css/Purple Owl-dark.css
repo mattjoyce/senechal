@@ -1,0 +1,47 @@
+
+/* Simple CSS theme based on Obsidian: Purple Owl (dark) */
+
+.markdown-body {
+  background-color: #011627;
+  color: #abb2bf;
+  font-family: system-ui, sans-serif;
+  line-height: 1.6;
+  padding: 1rem;
+}
+
+.markdown-body code,
+.markdown-body pre {
+  background-color: #1e1e2e;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3 {
+  color: #7aa2f7;
+}
+
+.markdown-body a {
+  color: #7aa2f7;
+  text-decoration: underline;
+}
+
+.markdown-body blockquote {
+  border-left: 4px solid #7aa2f7;
+  padding-left: 1em;
+  color: #aaa;
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid #aaa;
+  padding: 0.5em;
+}
+
+.markdown-body th {
+  background-color: #021D33;
+}
