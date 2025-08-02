@@ -1,11 +1,11 @@
 
-/* Simple CSS theme based on Obsidian: Catppuccin (light) */
+/* Simple CSS theme based on Obsidian: Tokyo Night (dark) */
 
 body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background-color: #ffffff;
+  background-color: #1a1b26;
 }
 
 .theme-selector {
@@ -26,8 +26,8 @@ body {
 }
 
 .markdown-body {
-  background-color: #ffffff;
-  color: #2e3338;
+  background-color: #1a1b26;
+  color: #c0caf5;
   font-family: system-ui, sans-serif;
   line-height: 1.6;
   padding: 1rem;
@@ -67,5 +67,5 @@ body {
 }
 
 .markdown-body th {
-  background-color: #f5f5f5;
+  background-color: #24283b;
 }

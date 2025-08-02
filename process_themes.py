@@ -81,18 +81,50 @@ body {{
 """
 
 def extract_colors(css_content):
-    variables = {
-        "--background-primary": "#111",
-        "--background-secondary": "#222",
-        "--text-normal": "#eee",
-        "--text-faint": "#aaa",
-        "--accent": "#7aa2f7",
-        "--code-background": "#1e1e2e",
+    # Default colors
+    colors = {
+        "background": "#1a1b26",
+        "text": "#c0caf5", 
+        "accent": "#7aa2f7",
+        "text_faint": "#9aa5ce",
+        "background_secondary": "#24283b",
+        "code_bg": "#1e202e"
     }
-    matches = re.findall(r'--([\w-]+):\s*(#[\da-fA-F]{3,6});', css_content)
-    for key, val in matches:
-        variables[f"--{key}"] = val
-    return variables
+    
+    # Extract actual colors from theme CSS
+    # Look for common Obsidian theme patterns
+    bg_matches = re.findall(r'--bg[^:]*:\s*rgb\(([^)]+)\)', css_content)
+    if bg_matches:
+        rgb_values = bg_matches[0].replace('var(--bg_x)', '').strip()
+        if ',' in rgb_values and not 'var(' in rgb_values:
+            try:
+                r, g, b = map(int, rgb_values.split(','))
+                colors["background"] = f"rgb({r}, {g}, {b})"
+            except:
+                pass
+    
+    fg_matches = re.findall(r'--fg[^:]*:\s*rgb\(([^)]+)\)', css_content)
+    if fg_matches:
+        rgb_values = fg_matches[0].replace('var(--fg_x)', '').strip()
+        if ',' in rgb_values and not 'var(' in rgb_values:
+            try:
+                r, g, b = map(int, rgb_values.split(','))
+                colors["text"] = f"rgb({r}, {g}, {b})"
+            except:
+                pass
+    
+    # Look for cyan/blue accent colors
+    cyan_matches = re.findall(r'--cyan[^:]*:\s*rgb\(([^)]+)\)', css_content)
+    if cyan_matches:
+        rgb_values = cyan_matches[0].replace('var(--cyan_x)', '').strip()
+        if ',' in rgb_values and not 'var(' in rgb_values:
+            try:
+                r, g, b = map(int, rgb_values.split(','))
+                colors["accent"] = f"rgb({r}, {g}, {b})"
+            except:
+                pass
+    
+    return colors
 
 def convert_themes():
     for theme_dir in SOURCE_DIR.iterdir():
@@ -105,22 +137,29 @@ def convert_themes():
             css_content = f.read()
 
         for mode in ["dark", "light"]:
-            mode_block = re.search(rf"\.theme-{mode}\s*\{{([^}}]+)\}}", css_content)
-            if not mode_block:
-                continue
-            mode_vars = extract_colors(mode_block.group(1))
+            # Extract colors from the entire CSS content for this theme
+            colors = extract_colors(css_content)
+            
+            # Adjust for light mode
+            if mode == "light":
+                colors["background"] = "#ffffff"
+                colors["text"] = "#2e3338"
+                colors["background_secondary"] = "#f5f5f5"
+            
             out_css = BASE_TEMPLATE.format(
                 theme_name=theme_name,
                 mode=mode,
-                background=mode_vars["--background-primary"],
-                background_secondary=mode_vars["--background-secondary"],
-                text=mode_vars["--text-normal"],
-                text_faint=mode_vars["--text-faint"],
-                accent=mode_vars["--accent"],
-                code_bg=mode_vars["--code-background"],
+                background=colors["background"],
+                background_secondary=colors["background_secondary"],
+                text=colors["text"],
+                text_faint=colors["text_faint"],
+                accent=colors["accent"],
+                code_bg=colors["code_bg"],
             )
 
-            out_path = DEST_DIR / f"{theme_name}-{mode}.css"
+            # Replace spaces with hyphens for URL-friendly filenames
+            safe_theme_name = theme_name.replace(" ", "-")
+            out_path = DEST_DIR / f"{safe_theme_name}-{mode}.css"
             with out_path.open("w") as f:
                 f.write(out_css)
 
