@@ -554,9 +554,10 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
 <body>
     <div class="theme-selector">
         <form method="get">
-            <select name="theme" onchange="this.form.submit()">
+            <select name="theme">
                 {theme_options}
             </select>
+            <button type="submit">Apply</button>
         </form>
     </div>
     
