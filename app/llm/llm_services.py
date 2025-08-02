@@ -553,7 +553,7 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
 </head>
 <body>
     <div class="theme-selector">
-        <select onchange="switchTheme(this.value)">
+        <select id="theme-select">
             {theme_options}
         </select>
     </div>
@@ -566,12 +566,15 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
     </div>
     
     <script>
-        function switchTheme(theme) {{
-            // Reload page with new theme parameter
-            const url = new URL(window.location);
-            url.searchParams.set('theme', theme);
-            window.location.href = url.toString();
-        }}
+        document.addEventListener('DOMContentLoaded', function() {{
+            const themeSelect = document.getElementById('theme-select');
+            themeSelect.addEventListener('change', function() {{
+                // Reload page with new theme parameter
+                const url = new URL(window.location);
+                url.searchParams.set('theme', this.value);
+                window.location.href = url.toString();
+            }});
+        }});
     </script>
 </body>
 </html>"""
