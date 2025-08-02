@@ -565,17 +565,7 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
         </div>
     </div>
     
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {{
-            const themeSelect = document.getElementById('theme-select');
-            themeSelect.addEventListener('change', function() {{
-                // Reload page with new theme parameter
-                const url = new URL(window.location);
-                url.searchParams.set('theme', this.value);
-                window.location.href = url.toString();
-            }});
-        }});
-    </script>
+    <script src="/api/senechal/static/js/theme-switcher.js"></script>
 </body>
 </html>"""
     
