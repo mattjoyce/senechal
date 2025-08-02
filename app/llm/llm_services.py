@@ -553,7 +553,7 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
 </head>
 <body>
     <div class="theme-selector">
-        <form method="get">
+        <form method="get" action="">
             <select name="theme">
                 {theme_options}
             </select>
