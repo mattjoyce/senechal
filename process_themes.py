@@ -81,7 +81,16 @@ body {{
 """
 
 def extract_colors(css_content):
-    # Default colors
+    # Extract base HSL values
+    base_h = re.search(r'--base-h:\s*(\d+)', css_content)
+    base_s = re.search(r'--base-s:\s*(\d+)%', css_content) 
+    base_l = re.search(r'--base-l:\s*(\d+)%', css_content)
+    
+    accent_h = re.search(r'--accent-h:\s*(\d+)', css_content)
+    accent_s = re.search(r'--accent-s:\s*(\d+)%', css_content)
+    accent_l = re.search(r'--accent-l:\s*(\d+)%', css_content)
+    
+    # Default fallback colors
     colors = {
         "background": "#1a1b26",
         "text": "#c0caf5", 
@@ -91,38 +100,24 @@ def extract_colors(css_content):
         "code_bg": "#1e202e"
     }
     
-    # Extract actual colors from theme CSS
-    # Look for common Obsidian theme patterns
-    bg_matches = re.findall(r'--bg[^:]*:\s*rgb\(([^)]+)\)', css_content)
-    if bg_matches:
-        rgb_values = bg_matches[0].replace('var(--bg_x)', '').strip()
-        if ',' in rgb_values and not 'var(' in rgb_values:
-            try:
-                r, g, b = map(int, rgb_values.split(','))
-                colors["background"] = f"rgb({r}, {g}, {b})"
-            except:
-                pass
+    # Use extracted HSL values if available
+    if base_h and base_s and base_l:
+        h = int(base_h.group(1))
+        s = int(base_s.group(1))
+        l = int(base_l.group(1))
+        
+        # Calculate dark theme colors based on base HSL
+        colors["background"] = f"hsl({h}, {s}%, {max(l-75, 5)}%)"
+        colors["background_secondary"] = f"hsl({h}, {s}%, {max(l-70, 8)}%)"
+        colors["text"] = f"hsl({h}, {max(s-10, 0)}%, {min(l+65, 90)}%)"
+        colors["text_faint"] = f"hsl({h}, {max(s-10, 0)}%, {min(l+35, 70)}%)"
+        colors["code_bg"] = f"hsl({h}, {s}%, {max(l-65, 10)}%)"
     
-    fg_matches = re.findall(r'--fg[^:]*:\s*rgb\(([^)]+)\)', css_content)
-    if fg_matches:
-        rgb_values = fg_matches[0].replace('var(--fg_x)', '').strip()
-        if ',' in rgb_values and not 'var(' in rgb_values:
-            try:
-                r, g, b = map(int, rgb_values.split(','))
-                colors["text"] = f"rgb({r}, {g}, {b})"
-            except:
-                pass
-    
-    # Look for cyan/blue accent colors
-    cyan_matches = re.findall(r'--cyan[^:]*:\s*rgb\(([^)]+)\)', css_content)
-    if cyan_matches:
-        rgb_values = cyan_matches[0].replace('var(--cyan_x)', '').strip()
-        if ',' in rgb_values and not 'var(' in rgb_values:
-            try:
-                r, g, b = map(int, rgb_values.split(','))
-                colors["accent"] = f"rgb({r}, {g}, {b})"
-            except:
-                pass
+    if accent_h and accent_s and accent_l:
+        ah = int(accent_h.group(1))
+        as_ = int(accent_s.group(1))
+        al = int(accent_l.group(1))
+        colors["accent"] = f"hsl({ah}, {as_}%, {al}%)"
     
     return colors
 

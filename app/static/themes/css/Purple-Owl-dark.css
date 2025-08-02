@@ -5,7 +5,7 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background-color: #1a1b26;
+  background-color: hsl(276, 68%, 5%);
 }
 
 .theme-selector {
@@ -16,7 +16,7 @@ body {
   background: rgba(255, 255, 255, 0.9);
   padding: 5px;
   border-radius: 4px;
-  border: 1px solid #9aa5ce;
+  border: 1px solid hsl(276, 58%, 70%);
 }
 
 .markdown-container {
@@ -26,8 +26,8 @@ body {
 }
 
 .markdown-body {
-  background-color: #1a1b26;
-  color: #c0caf5;
+  background-color: hsl(276, 68%, 5%);
+  color: hsl(276, 58%, 90%);
   font-family: system-ui, sans-serif;
   line-height: 1.6;
   padding: 1rem;
@@ -35,24 +35,24 @@ body {
 
 .markdown-body code,
 .markdown-body pre {
-  background-color: #1e202e;
+  background-color: hsl(276, 68%, 10%);
   padding: 0.2em 0.4em;
   border-radius: 4px;
 }
 
 .markdown-body h1, .markdown-body h2, .markdown-body h3 {
-  color: #7aa2f7;
+  color: hsl(14, 90%, 70%);
 }
 
 .markdown-body a {
-  color: #7aa2f7;
+  color: hsl(14, 90%, 70%);
   text-decoration: underline;
 }
 
 .markdown-body blockquote {
-  border-left: 4px solid #7aa2f7;
+  border-left: 4px solid hsl(14, 90%, 70%);
   padding-left: 1em;
-  color: #9aa5ce;
+  color: hsl(276, 58%, 70%);
 }
 
 .markdown-body table {
@@ -62,10 +62,10 @@ body {
 
 .markdown-body th,
 .markdown-body td {
-  border: 1px solid #9aa5ce;
+  border: 1px solid hsl(276, 58%, 70%);
   padding: 0.5em;
 }
 
 .markdown-body th {
-  background-color: #24283b;
+  background-color: hsl(276, 68%, 8%);
 }
