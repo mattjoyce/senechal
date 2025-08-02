@@ -84,7 +84,7 @@ async def process_with_llm(request: LLMRequest):
             )
             
             # Return URL when saving
-            result_url = f"{SENECHAL_API_URL}/llm/view/{result_id}"
+            result_url = f"{SENECHAL_API_URL.rstrip('/')}/llm/view/{result_id}"
             
             return LLMResponse(
                 status="success",

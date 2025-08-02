@@ -99,7 +99,7 @@ async def analyze_content(request: AnalyzeRequest):
             )
             
             # Return URL pointing to LLM service
-            analysis_url = f"{SENECHAL_API_URL}/llm/view/{result_id}"
+            analysis_url = f"{SENECHAL_API_URL.rstrip('/')}/llm/view/{result_id}"
             
             return AnalysisResponse(
                 status="success",

@@ -83,7 +83,7 @@ async def scrape(request: LearningItemRequest):
         )
         
         # Create the URL pointing to LLM service
-        new_url = f"{SENECHAL_API_URL}/llm/view/{result_id}"
+        new_url = f"{SENECHAL_API_URL.rstrip('/')}/llm/view/{result_id}"
         
         return LearningResponse(
             status="success",
