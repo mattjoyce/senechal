@@ -549,7 +549,7 @@ def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title}</title>
-    <link rel="stylesheet" id="theme-css" href="/api/senechal/static/themes/css/{theme}.css">
+    <link rel="stylesheet" id="theme-css" href="/api/senechal/static/themes/css/{theme_name}.css">
 </head>
 <body>
     <div class="theme-selector">
