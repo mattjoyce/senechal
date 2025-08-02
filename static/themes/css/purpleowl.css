@@ -1,0 +1,76 @@
+
+/* Generated from Obsidian theme: Purple Owl */
+
+.markdown-body {
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-family: system-ui, sans-serif;
+  line-height: 1.6;
+  padding: 1rem;
+}
+
+.markdown-body h1, 
+.markdown-body h2, 
+.markdown-body h3 {
+  color: var(--accent);
+  margin-top: 1.5em;
+}
+
+.markdown-body pre,
+.markdown-body code {
+  background: var(--code-background, #1e1e2e);
+  font-family: monospace;
+  padding: 0.5em;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+.markdown-body pre.frontmatter {
+  background: var(--background-secondary);
+  color: var(--text-faint);
+  font-family: monospace;
+  border-left: 3px solid var(--accent);
+  padding: 1em;
+  margin-bottom: 2em;
+}
+
+:root {
+--base-h:276;       /* Base hue */
+--base-s:68%;      /* Base saturation */
+--base-d:15%;     /* Base lightness Dark Mode  - 0 is black */
+--base-l:75%;     /* Base lightness Light Mode  - 100 is white */
+--accent-h:14;   /* Accent hue */
+--accent-s:90%;   /* Accent saturation */
+--accent-d:60%;   /* Accent lightness Dark Mode */
+--accent-l:70%;   /* Accent lightness Light Mode */
+--cursor:default;
+--text:"monolisa", menlo, SFMono-Regular, Consolas, monospace;
+--text-editor:var(--text);
+--font-monospace:var(--text);
+--font-ui:var(--text);
+--font-normal:16px;
+--font-small:13px;
+--font-smaller:11px;
+--font-smallest:10px;
+--h1:1.125em;
+--h2:1em;
+--h3:1em;
+--h4:0.90em;
+--h5:0.85em;
+--h6:0.85em;
+--h1-weight:600;
+--h2-weight:600;
+--h3-weight:500;
+--h4-weight:500;
+--h5-weight:500;
+--h6-weight:400;
+--normal-weight:400;   /* Switch to 300 if you want thinner default text */
+--bold-weight:600;     /* Switch to 700 if you want thicker bold text */
+--line-width:40rem;    /* Maximum characters per line */
+--line-height:1.5;
+--max-width:88%;       /* Amount of padding around the text, use 90% for narrower padding */
+--nested-padding:3.5%; /* Amount of padding for quotes and transclusions */
+--icon-muted:0.4;
+--border-width:1px;
+--border-width-alt:1px;
+}

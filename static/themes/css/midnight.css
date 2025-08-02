@@ -1,0 +1,53 @@
+
+/* Generated from Obsidian theme: Midnight */
+
+.markdown-body {
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-family: system-ui, sans-serif;
+  line-height: 1.6;
+  padding: 1rem;
+}
+
+.markdown-body h1, 
+.markdown-body h2, 
+.markdown-body h3 {
+  color: var(--accent);
+  margin-top: 1.5em;
+}
+
+.markdown-body pre,
+.markdown-body code {
+  background: var(--code-background, #1e1e2e);
+  font-family: monospace;
+  padding: 0.5em;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+.markdown-body pre.frontmatter {
+  background: var(--background-secondary);
+  color: var(--text-faint);
+  font-family: monospace;
+  border-left: 3px solid var(--accent);
+  padding: 1em;
+  margin-bottom: 2em;
+}
+
+:root {
+--input-focus-border-color: Highlight;
+--input-focus-outline: 1px solid Canvas;
+--input-unfocused-border-color: transparent;
+--input-disabled-border-color: transparent;
+--input-hover-border-color: black;
+--color-main-dark: #040812;
+--color-secondary-dark: #0f1116;
+--color-light-blue: #849dff;
+--color-light-purple: #aa8fd1;
+--color-outline: #282828;
+--color-muted-purple: #1e1e32;
+--color-dark-magenta: rgb(213, 26, 126);
+--color-graph-node: rgb(140, 140, 140);
+--color-graph-node-unresolved: rgb(95, 95, 100);
+--color-thistle: #d8bfd8;
+}

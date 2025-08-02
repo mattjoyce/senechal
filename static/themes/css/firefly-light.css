@@ -1,0 +1,66 @@
+
+/* Generated from Obsidian theme: Firefly (light) */
+
+.markdown-body {
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-family: system-ui, sans-serif;
+  line-height: 1.6;
+  padding: 1rem;
+}
+
+.markdown-body h1, 
+.markdown-body h2, 
+.markdown-body h3 {
+  color: var(--accent);
+  margin-top: 1.5em;
+}
+
+.markdown-body pre,
+.markdown-body code {
+  background: var(--code-background, #1e1e2e);
+  font-family: monospace;
+  padding: 0.5em;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+.markdown-body pre.frontmatter {
+  background: var(--background-secondary);
+  color: var(--text-faint);
+  font-family: monospace;
+  border-left: 3px solid var(--accent);
+  padding: 1em;
+  margin-bottom: 2em;
+}
+
+:root {
+--color-primary-100: #959ab9;
+--color-primary-200: #ffffff;
+--color-primary-300: #ffffff;
+--color-primary-400: #ffffff;
+--color-primary-500: #ffffff;
+--color-primary-600: #ffffff;
+--color-primary-700: #ffffff;
+--color-primary-800: #ffffff;
+--color-primary-900: #f0f1f5;
+--color-primary-1000: #f0f1f5;
+--color-primary-1100: #f0f1f5;
+--color-title-h1: #ff4683;
+--color-title-h2: #598bf7;
+--color-title-h3: #48e484;
+--color-title-h4: #fb49ae;
+--color-title-h5: #63b9ff;
+--color-title-h6: #b4da54;
+--color-element-icon: #1f212f;
+--color-element-border: #ffffff;
+--color-element-border-light: #ffffff;
+--color-effect-textGlow: #ff0040;
+--color-text-strong: #ff0040;
+--color-text-code: #6be399;
+--color-text-paragraph: #1f212f;
+--color-text-quote: #484e6d;
+--color-text-link: #2633ab;
+--color-text-linkUrl: #2633ab;
+--color-text-hash-tag: #5d648c;
+}
