@@ -46,6 +46,7 @@ pylance==0.23.2
 pyparsing==3.2.3
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
+markdown==3.8.2
 python-ulid==3.0.0
 PyYAML==6.0.2
 requests==2.32.3
