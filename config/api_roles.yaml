@@ -20,6 +20,16 @@ roles:
       - "/analysis/list"
       - "/analysis/file"
       - "/analysis/types"
+      - "/llm/process"
+      - "/llm/prompts"
+      - "/llm/list"
+      - "/llm/file"
+      - "/llm/extract"
+      - "/llm/analyze"
+      - "/llm/custom"
+      - "/llm/view"
+      - "/workflow/execute"
+      - "/workflow/steps"
   read:
     access:
       - "/getTest"
@@ -37,4 +47,3 @@ roles:
     access:
       - "/setTest"
       - "/health/rowing/submit"
-
