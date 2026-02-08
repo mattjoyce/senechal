@@ -1,0 +1,37 @@
+/* High specificity CSS to override everything */
+
+html body {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh !important;
+  background-color: #ff0000 !important; /* Bright red so we know it's working */
+  font-family: Arial, sans-serif !important;
+}
+
+html body .markdown-container {
+  max-width: 900px !important;
+  margin: 0 auto !important;
+  padding: 2rem !important;
+  background-color: #ffff00 !important; /* Bright yellow container */
+}
+
+html body .markdown-container .markdown-body {
+  background-color: #00ff00 !important; /* Bright green content area */
+  color: #000000 !important;
+  font-family: system-ui, sans-serif !important;
+  line-height: 1.6 !important;
+  padding: 1rem !important;
+}
+
+html body .markdown-container .markdown-body h1, 
+html body .markdown-container .markdown-body h2, 
+html body .markdown-container .markdown-body h3 {
+  color: #ff0000 !important; /* Red headers */
+}
+
+html body .markdown-container .markdown-body code,
+html body .markdown-container .markdown-body pre {
+  background-color: #cccccc !important;
+  padding: 0.2em 0.4em !important;
+  border-radius: 4px !important;
+}

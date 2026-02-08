@@ -3,6 +3,7 @@ import logging
 import time
 
 from fastapi import Depends, FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -78,6 +79,9 @@ class StripPrefixMiddleware(BaseHTTPMiddleware):
 # Add request logging middleware
 app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(StripPrefixMiddleware, prefix="/api/senechal")
+
+# Mount static files directory
+app.mount("/static", StaticFiles(directory="app/static"), name="senechal-static")
 
 # Include the health router
 app.include_router(health_router)

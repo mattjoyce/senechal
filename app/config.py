@@ -27,6 +27,9 @@ HEALTH_PROFILE_PATH = os.getenv("HEALTH_PROFILE_PATH")
 # Senechal API URL
 SENECHAL_API_URL = os.getenv("SENECHAL_API_URL")
 
+# Theme configuration
+MARKDOWN_THEME = os.getenv("MARKDOWN_THEME", "Minimal-dark")
+
 # Logging path - defaults to log directory in project root
 APP_LOGGING_PATH = os.getenv("APP_LOGGING_PATH", PROJECT_ROOT / "log")
 

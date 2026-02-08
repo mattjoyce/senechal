@@ -9,9 +9,10 @@ from pathlib import Path
 from typing import Any, Dict, Tuple, Optional, Union
 
 import llm
+import markdown
 
 from app.health.models import RowingData
-from app.config import LEARNING_CONTENT_PATH
+from app.config import LEARNING_CONTENT_PATH, MARKDOWN_THEME
 from app.learning.utils import scrape_url
 from app.llm.models import OutputFormat, LLMResult
 
@@ -403,3 +404,126 @@ def list_llm_results() -> list:
     # Sort by creation date (newest first)
     results.sort(key=lambda x: x.get("created", ""), reverse=True)
     return results
+
+
+# Theme management functions
+
+def get_themes_dir() -> Path:
+    """Get the directory for CSS themes"""
+    themes_dir = Path(__file__).parent.parent.parent / "app" / "static" / "themes" / "css"
+    themes_dir.mkdir(parents=True, exist_ok=True)
+    return themes_dir
+
+
+def get_available_themes() -> list:
+    """List all available CSS theme files"""
+    themes_dir = get_themes_dir()
+    themes = []
+    
+    for css_file in themes_dir.glob("*.css"):
+        themes.append(css_file.stem)
+    
+    return sorted(themes)
+
+
+def get_theme_config_path() -> Path:
+    """Get path to theme configuration file"""
+    base_dir = Path(__file__).parent.parent.parent
+    config_dir = base_dir / "config"
+    config_dir.mkdir(exist_ok=True)
+    return config_dir / "theme_config.json"
+
+
+def get_selected_theme() -> str:
+    """Get the currently selected theme, defaulting to first available"""
+    config_path = get_theme_config_path()
+    
+    try:
+        if config_path.exists():
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+                selected = config.get("selected_theme")
+                
+                # Verify theme still exists
+                available_themes = get_available_themes()
+                if selected and selected in available_themes:
+                    return selected
+        
+        # Default to first available theme
+        available_themes = get_available_themes()
+        return available_themes[0] if available_themes else "github"
+        
+    except Exception as e:
+        logger.warning(f"Error reading theme config: {e}")
+        return "github"
+
+
+def set_selected_theme(theme_name: str) -> None:
+    """Persist theme selection to config"""
+    config_path = get_theme_config_path()
+    
+    try:
+        config = {"selected_theme": theme_name}
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2)
+    except Exception as e:
+        logger.error(f"Error saving theme config: {e}")
+
+
+def load_theme_css(theme_name: str) -> str:
+    """Load CSS content for the specified theme"""
+    themes_dir = get_themes_dir()
+    css_file = themes_dir / f"{theme_name}.css"
+    
+    if not css_file.exists():
+        # Fallback to first available theme
+        available_themes = get_available_themes()
+        if available_themes:
+            theme_name = available_themes[0]
+            css_file = themes_dir / f"{theme_name}.css"
+    
+    try:
+        if css_file.exists():
+            with open(css_file, 'r', encoding='utf-8') as f:
+                return f.read()
+    except Exception as e:
+        logger.error(f"Error loading theme CSS {theme_name}: {e}")
+    
+    # Return minimal fallback CSS
+    return """
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .theme-selector { position: fixed; top: 10px; right: 10px; }
+    .metadata { border-bottom: 1px solid #ccc; padding-bottom: 1rem; margin-bottom: 2rem; }
+    .content { max-width: 800px; margin: 0 auto; padding: 2rem; }
+    """
+
+
+def render_markdown_to_html(content: str, metadata: Dict[str, Any], theme_name: str = None) -> str:
+    """Convert markdown content to themed HTML page"""
+    if theme_name is None:
+        theme_name = MARKDOWN_THEME
+    
+    # Convert markdown to HTML
+    md = markdown.Markdown(extensions=['codehilite', 'fenced_code', 'tables'])
+    html_content = md.convert(content)
+    
+    # Extract metadata for display
+    title = metadata.get('title', 'Untitled')
+    
+    # Generate YAML frontmatter for display
+    frontmatter_yaml = yaml.dump(metadata, default_flow_style=False).strip()
+    
+    # Load HTML template
+    template_path = Path(__file__).parent.parent / "themes" / "viewer-template.html"
+    with open(template_path, 'r', encoding='utf-8') as f:
+        template = f.read()
+    
+    # Replace template variables
+    html_page = template.format(
+        title=title,
+        theme_name=theme_name,
+        frontmatter_yaml=frontmatter_yaml,
+        html_content=html_content
+    )
+    
+    return html_page

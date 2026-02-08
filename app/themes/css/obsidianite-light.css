@@ -1,0 +1,62 @@
+
+/* Generated from Obsidian theme: Obsidianite (light) */
+
+.markdown-body {
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-family: system-ui, sans-serif;
+  line-height: 1.6;
+  padding: 1rem;
+}
+
+.markdown-body h1, 
+.markdown-body h2, 
+.markdown-body h3 {
+  color: var(--accent);
+  margin-top: 1.5em;
+}
+
+.markdown-body pre,
+.markdown-body code {
+  background: var(--code-background, #1e1e2e);
+  font-family: monospace;
+  padding: 0.5em;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+.markdown-body pre.frontmatter {
+  background: var(--background-secondary);
+  color: var(--text-faint);
+  font-family: monospace;
+  border-left: 3px solid var(--accent);
+  padding: 1em;
+  margin-bottom: 2em;
+}
+
+:root {
+--background-primary: #fbfbfb;
+--background-primary-alt: #fbfbfb;
+--background-secondary: #fbfbfb;
+--background-secondary-alt: #2e3236;
+--text-normal: #333;
+--text-faint: #b2b2b2;
+--text-title-h1: #333;
+--text-title-h2: #333;
+--text-title-h3: #333;
+--text-title-h4: #333;
+--text-title-h5: #333;
+--text-link: #b4b4b4;
+--text-a: #db4d52;
+--text-a-hover: #db4d52;
+--text-mark: #d3ffa4;
+--pre-code: #ffffff;
+--interactive-accent: #92a1a1;
+--interactive-before: #5e6565;
+--background-modifier-border: #92a1a17a;
+--blockquote-border: #d6555f;
+--tag-background: rgba(14, 210, 247, 0.15);
+--interactive-accent-rgb: 61, 215, 251;
+--font-family-editor: Avenir, 'Avenir Next';
+--font-family-preview: Avenir, 'Avenir Next';
+}

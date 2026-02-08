@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Depends, Query
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, HTMLResponse
 
 from app.auth import check_access
 from app.config import SENECHAL_API_URL
@@ -15,7 +15,7 @@ from app.llm.models import (
 from app.llm.llm_services import (
     get_available_prompts, get_prompt_by_name, process_input_content,
     perform_llm_processing, save_llm_result, generate_llm_id,
-    get_llm_file_content, list_llm_results
+    get_llm_file_content, list_llm_results, render_markdown_to_html
 )
 
 # Configure logging
@@ -83,7 +83,7 @@ async def process_with_llm(request: LLMRequest):
             )
             
             # Return URL when saving
-            result_url = f"{SENECHAL_API_URL}/llm/file/{result_id}"
+            result_url = f"{SENECHAL_API_URL.rstrip('/')}/llm/view/{result_id}"
             
             return LLMResponse(
                 status="success",
@@ -237,6 +237,26 @@ async def delete_result_file(result_id: str):
     except Exception as e:
         logger.error(f"Failed to delete LLM result file {result_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to delete LLM result file: {str(e)}")
+
+
+@router.get("/view/{result_id}", response_class=HTMLResponse)
+async def view_result(result_id: str):
+    """
+    View LLM result as rendered HTML with configured theme
+    """
+    try:
+        metadata, content = get_llm_file_content(result_id)
+        
+        # Render markdown to HTML with configured theme
+        html_content = render_markdown_to_html(content, metadata)
+        
+        return HTMLResponse(content=html_content)
+        
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail=f"LLM result file not found: {result_id}")
+    except Exception as e:
+        logger.error(f"Failed to view LLM result {result_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to view LLM result: {str(e)}")
 
 
 # Convenience endpoints for common operations
