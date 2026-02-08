@@ -236,14 +236,20 @@ def get_youtube_transcript(url: str) -> tuple[str, str]:
     date = snippet['publishedAt']
     description = snippet['description']
     
-    # Get transcript
+    # Get transcript (proxy optional; use only if configured)
     try:
-        ytt_api = YouTubeTranscriptApi(
-            proxy_config=GenericProxyConfig(
-                http_url= PROXY_HTTP_URL,
-                https_url= PROXY_HTTPS_URL,
+        proxy_config = None
+        if PROXY_HTTP_URL or PROXY_HTTPS_URL:
+            proxy_config = GenericProxyConfig(
+                http_url=PROXY_HTTP_URL,
+                https_url=PROXY_HTTPS_URL,
             )
-        )
+
+        if proxy_config:
+            ytt_api = YouTubeTranscriptApi(proxy_config=proxy_config)
+        else:
+            ytt_api = YouTubeTranscriptApi()
+
         transcript_list = ytt_api.fetch(video_id)
         transcript = '\n'.join([item.text for item in transcript_list])
         

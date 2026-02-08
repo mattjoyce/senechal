@@ -62,8 +62,22 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
 app = FastAPI()
 
+# Optional prefix stripping for reverse proxy paths like /api/senechal
+class StripPrefixMiddleware(BaseHTTPMiddleware):
+    def __init__(self, app, prefix: str):
+        super().__init__(app)
+        self.prefix = prefix
+
+    async def dispatch(self, request: Request, call_next):
+        path = request.scope.get("path", "")
+        if path.startswith(self.prefix):
+            new_path = path[len(self.prefix):] or "/"
+            request.scope["path"] = new_path
+        return await call_next(request)
+
 # Add request logging middleware
 app.add_middleware(RequestLoggingMiddleware)
+app.add_middleware(StripPrefixMiddleware, prefix="/api/senechal")
 
 # Include the health router
 app.include_router(health_router)
