@@ -12,6 +12,7 @@ from .health.routes import router as health_router
 from .learning.routes import router as learning_router
 from .analysis.routes import router as analysis_router
 from .llm.routes import router as llm_router
+from .core.routes import router as workflow_router
 from .logging_config import setup_logging
 
 # Set up logging
@@ -77,6 +78,8 @@ app.include_router(learning_router)
 app.include_router(analysis_router)
 # Include the unified LLM router
 app.include_router(llm_router)
+# Include the workflow engine router
+app.include_router(workflow_router)
 
 # Data model for writing to file
 class TestData(BaseModel):
