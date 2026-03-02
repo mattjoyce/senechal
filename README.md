@@ -294,5 +294,5 @@ View interactive API docs at:
 - ReDoc: `http://localhost:8000/redoc`
 - OpenAPI Spec: `http://localhost:8000/openapi.json`
 
-
-
+## Changelog
+See [CHANGELOG.md](CHANGELOG.md).
